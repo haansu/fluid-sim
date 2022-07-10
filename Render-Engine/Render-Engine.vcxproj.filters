@@ -18,13 +18,13 @@
     <ClInclude Include="src\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine.h">
+    <ClInclude Include="src\REAPIPPL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\EAPIPP.h">
+    <ClInclude Include="src\Render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\EAPIPPL.h">
+    <ClInclude Include="src\REAPIPP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
