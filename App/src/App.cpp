@@ -3,7 +3,6 @@
 #include <Render.h>
 #include <EAPIPP.h>
 #include <REAPIPP.h>
-
 //
 //	ENTRY POINT
 //
@@ -11,7 +10,7 @@
 int main() {
 	
 	std::cout << "Restructuring!\n";
-	std::cout << rnd::Run() << "\n";
+	rnd::Run();
 	std::cout << eng::Run() << "\n";
 	return 0;
 }
