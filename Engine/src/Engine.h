@@ -1,5 +1,7 @@
 #pragma once
-#include "EAPIPPL.h"
+#include "pch.h"
+
+#define ENGINE_API __declspec(dllexport)
 
 namespace eng {
 	ENGINE_API int Run() {

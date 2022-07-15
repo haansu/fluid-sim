@@ -1,36 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Core">
+      <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Window">
+      <UniqueIdentifier>{3DEA79DA-298C-A4B0-1247-B804FE872B01}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\pch.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Core.h">
+      <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\REAPIPPL.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Window\Window.h">
+      <Filter>Window</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\REAPIPP.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\App.h" />
+    <ClInclude Include="src\Defs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\pch.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\Window\Window.cpp">
+      <Filter>Window</Filter>
     </ClCompile>
+    <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\App.cpp" />
   </ItemGroup>
 </Project>

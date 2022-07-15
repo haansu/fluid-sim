@@ -104,7 +104,9 @@ project "Engine"
 		"Engine/src/**.cpp"
 	}
 
-	includedirs { }
+	includedirs { 
+		"Engine/src"
+	}
 
 	links {	}
 
@@ -117,7 +119,10 @@ project "Engine"
 			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/App")
 		}
 
-		defines { "FS_ENGINE" }
+		defines {
+			"FS_ENGINE",
+			"ENGINE_API_EXPORT"
+		}
 	
 	filter "configurations:Debug"
 		defines "BLR_DEBUG"
@@ -155,7 +160,8 @@ project "Render-Engine"
 
 	includedirs {
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.Vulkan}"
+		"%{IncludeDir.Vulkan}",
+		"Engine/src"
 	}
 
 	libdirs {
@@ -177,7 +183,10 @@ project "Render-Engine"
 			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/App")
 		}
 
-		defines { "FS_RENDER_ENGINE" }
+		defines {
+			"FS_RENDER_ENGINE",
+			"RENDER_API_EXPORT"
+		}
 	
 	filter "configurations:Debug"
 		defines "BLR_DEBUG"

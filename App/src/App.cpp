@@ -1,16 +1,13 @@
 #include <iostream>
 #include <Engine.h>
-#include <Render.h>
-#include <EAPIPP.h>
-#include <REAPIPP.h>
+#include <Core/Render.h>
 //
 //	ENTRY POINT
 //
 
 int main() {
 	
-	std::cout << "Restructuring!\n";
+	std::cout << "Version - a0.1\n";
 	rnd::Run();
-	std::cout << eng::Run() << "\n";
 	return 0;
 }
