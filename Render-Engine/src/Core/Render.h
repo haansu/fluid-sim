@@ -10,6 +10,5 @@ namespace rnd {
     RENDER_API void Run() {
         App core;
         core.Run();
-
     }
 }

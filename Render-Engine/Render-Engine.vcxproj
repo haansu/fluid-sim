@@ -107,6 +107,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Elements\Elem.h" />
+    <ClInclude Include="src\Elements\Vector2.h" />
+    <ClInclude Include="src\Elements\Vector3.h" />
+    <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Defs.h" />
@@ -115,11 +119,15 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

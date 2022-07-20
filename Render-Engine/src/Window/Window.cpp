@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Window.h"
-#include <String>
-#include "../Core.h"
+#include <string>
 
 namespace rnd {
 
