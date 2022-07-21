@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+
 #include "Defs.h"
 #include "Core.h"
 #include "Window/Window.h"

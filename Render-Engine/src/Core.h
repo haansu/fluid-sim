@@ -11,3 +11,11 @@
 #include <glm/mat4x4.hpp>
 
 #include <vulkan/vulkan.h>
+
+//
+// Adapt for future logging system
+#ifdef DEBUG
+constexpr bool DEBUG_MESSGE = true;
+#else
+constexpr bool DEBUG_MESSGE = false;
+#endif // DEBUG

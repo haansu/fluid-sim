@@ -23,6 +23,7 @@
     <ClInclude Include="src\Elements\Elem.h" />
     <ClInclude Include="src\Elements\Vector3.h" />
     <ClInclude Include="src\Elements\Vector2.h" />
+    <ClInclude Include="src\Core\Validation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Window\Window.cpp">
@@ -31,6 +32,7 @@
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
+    <ClCompile Include="src\Core\Validation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

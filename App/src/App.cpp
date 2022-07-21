@@ -9,6 +9,14 @@
 int main() {
 	
 	std::cout << "Version - a0.1\n";
-	rnd::Run();
-	return 0;
+
+	try {
+		rnd::Run();
+	}
+	catch (const std::exception& e) {
+		std::cerr << e.what() << "\n";
+		return EXIT_FAILURE;
+	}
+	
+	return EXIT_SUCCESS;
 }
