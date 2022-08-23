@@ -14,7 +14,7 @@
 
 //
 // Adapt for future logging system
-#ifdef DEBUG
+#ifdef FS_DEBUG
 constexpr bool DEBUG_MESSGE = true;
 #else
 constexpr bool DEBUG_MESSGE = false;

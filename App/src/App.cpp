@@ -12,6 +12,7 @@ int main() {
 
 	try {
 		rnd::Run();
+		eng::Run();
 	}
 	catch (const std::exception& e) {
 		std::cerr << e.what() << "\n";

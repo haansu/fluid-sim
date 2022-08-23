@@ -26,5 +26,9 @@ namespace rnd {
 		return glfwWindowShouldClose(m_Window);
 	}
 
+	GLFWwindow* Window::GetGLFWwindowPointer() {
+		return m_Window;
+	}
+
 
 }

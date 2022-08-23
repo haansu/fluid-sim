@@ -4,5 +4,6 @@
 #define PCH_H
 
 #include <iostream>
+#include <algorithm>
 
 #endif //PCH_H

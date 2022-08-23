@@ -103,6 +103,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Defs.h" />
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>

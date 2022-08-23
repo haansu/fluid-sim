@@ -12,10 +12,12 @@ namespace rnd {
 
 		RENDER_API bool ShouldClose();
 
+		GLFWwindow* GetGLFWwindowPointer();
+
 	private:
 		RENDER_API void CreateWindow();
 
-	private:
+	private_var:
 		const int m_Width;
 		const int m_Height;
 		std::string m_Title;
