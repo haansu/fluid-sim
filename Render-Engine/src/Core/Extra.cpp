@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace rnd {
+namespace Render {
 
 	VkResult CreateDebugUtilsMesageEXT(VkInstance instance
 		, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo

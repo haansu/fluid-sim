@@ -3,7 +3,7 @@
 #include <vector>
 #include <array>
 
-namespace rnd {
+namespace Render {
 
 	template<typename T>
 	struct Vector3 {

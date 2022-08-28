@@ -2,7 +2,7 @@
 #include "Window.h"
 #include <string>
 
-namespace rnd {
+namespace Render {
 
 	Window::Window(int width, int height, std::string title)
 		: m_Width(width), m_Height(height), m_Title(title) {

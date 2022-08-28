@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace rnd {
+namespace Render {
 
 #ifdef FS_DEBUG
 	constexpr bool enableValLayers = true;

@@ -11,7 +11,7 @@ int main() {
 	std::cout << "Version - a0.1\n";
 
 	try {
-		rnd::Run();
+		Render::Run();
 		eng::Run();
 	}
 	catch (const std::exception& e) {

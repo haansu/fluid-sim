@@ -5,7 +5,7 @@
 #include "Window/Window.h"
 #include "App.h"
 
-namespace rnd {
+namespace Render {
 
     RENDER_API void Run() {
         App core;

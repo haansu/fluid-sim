@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-namespace rnd::Helper {
+namespace Render::Helper {
 
 	[[nodiscard]] std::vector<char> ReadFile(const std::string& fileName) {
 		std::ifstream file(fileName, std::ios::ate | std::ios::binary);
