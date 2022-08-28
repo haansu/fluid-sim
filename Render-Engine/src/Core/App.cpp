@@ -1,9 +1,13 @@
 #include "pch.h"
 #include "App.h"
 #include "Extra.h"
+#include "Helper.h"
+
 #include "../Core.h"
 #include "../Window/Window.h"
 
+#include <algorithm>
+#include <limits>
 #include <vector>
 #include <optional>
 #include <set>
@@ -17,20 +21,31 @@ namespace rnd {
 	}
 
 	void App::Init() {
+		InitObjects();
 		CreateInstance();
 		SetupDebugMsgr();
 		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
+		CreateSwapChain();
+		CreateImageViews();
+		CreateGraphicsPipeline();
+	}
+
+	void App::InitObjects() {
+		m_PWindow = new Window{ 800, 600, "Vulkan" };
 	}
 
 	void App::MainLoop() {
-		while (!m_Window.ShouldClose()) {
+		while (!m_PWindow->ShouldClose()) {
 			glfwPollEvents();
 		}
 	}
 
 	void App::CleanUp() {
+		for (auto elem : m_SwapChainImageViews)
+			vkDestroyImageView(m_Device, elem, nullptr);
+
 		vkDestroyDevice(m_Device, nullptr);
 		
 		if (enableValLayers)
@@ -39,6 +54,7 @@ namespace rnd {
 		vkDestroySurfaceKHR(m_VkInstance, m_Surface, nullptr);
 		vkDestroyInstance(m_VkInstance, nullptr);
 
+		delete m_PWindow;
 	}
 
 	void App::CreateInstance() {
@@ -79,7 +95,7 @@ namespace rnd {
 		
 		VkResult result = vkCreateInstance(&createInfo, nullptr, &m_VkInstance);
 		if (result != VK_SUCCESS)
-			throw std::runtime_error("failed to create instance!");
+			throw std::runtime_error("Failed to create instance!");
 		
 		//
 		// KEEP UNTIL LOGGING SYSTEM IN PLACE
@@ -262,7 +278,7 @@ namespace rnd {
 	}
 
 	void App::CreateSurface() {
-		if (glfwCreateWindowSurface(m_VkInstance, m_Window.GetGLFWwindowPointer(), nullptr, &m_Surface) != VK_SUCCESS)
+		if (glfwCreateWindowSurface(m_VkInstance, m_PWindow->GetGLFWwindowPointer(), nullptr, &m_Surface) != VK_SUCCESS)
 			throw std::runtime_error("Failed to create window surface!");
 	}
 
@@ -276,9 +292,9 @@ namespace rnd {
 		VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
 
 		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImagecCount) {
+
+		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
 			imageCount = swapChainSupport.capabilities.maxImageCount;
-		}
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -312,11 +328,113 @@ namespace rnd {
 			throw std::runtime_error("Failed to create swap chain!");
 
 		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, nullptr);
-		m_SwapChainImgs.resize(imageCount);
-		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, m_SwapChainImgs.data());
+		m_SwapChainImages.resize(imageCount);
+		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, m_SwapChainImages.data());
 
 		m_SwapChainImageFormat = surfaceFormat.format;
 		m_SwapChainExtent = extent;
+	}
+
+	void App::CreateImageViews() {
+		m_SwapChainImageViews.resize(m_SwapChainImages.size());
+
+		for (size_t i = 0; i < m_SwapChainImages.size(); i++) {
+			VkImageViewCreateInfo createInfo{};
+			
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = m_SwapChainImages[i];
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = m_SwapChainImageFormat;
+			
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			if (vkCreateImageView(m_Device, &createInfo, nullptr, &m_SwapChainImageViews[i]) != VK_SUCCESS)
+				throw std::runtime_error("Failed to create image views!");
+		}
+	}
+
+	// TO DO:
+	// Change shader path to relative path
+	void App::CreateGraphicsPipeline() {
+		
+		auto vertShaderCode = Helper::ReadFile("C:/Users/Haansu/source/repos/fluid-sim/Render-Engine/src/Shaders/vert.spv");
+		auto fragShaderCode = Helper::ReadFile("C:/Users/Haansu/source/repos/fluid-sim/Render-Engine/src/Shaders/frag.spv");
+
+		VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
+		VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+		
+		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		vertShaderStageInfo.module = vertShaderModule;
+		vertShaderStageInfo.pName = "main";
+
+		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		vertShaderStageInfo.module = fragShaderModule;
+		vertShaderStageInfo.pName = "main";
+
+		VkPipelineShaderStageCreateInfo shaderStages[] {
+			  vertShaderStageInfo
+			, fragShaderStageInfo
+		};
+
+		vkDestroyShaderModule(m_Device, vertShaderModule, nullptr);
+		vkDestroyShaderModule(m_Device, fragShaderModule, nullptr);
+	}
+
+	VkShaderModule App::CreateShaderModule(const std::vector<char>& code) {
+		VkShaderModuleCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = code.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	
+		VkShaderModule shaderModule;
+		if (vkCreateShaderModule(m_Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create shader module!");
+
+		return shaderModule;
+	}
+
+	VkSurfaceFormatKHR App::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+		for (const auto& elem : availableFormats)
+			if (elem.format == VK_FORMAT_B8G8R8A8_SRGB && elem.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+				return elem;
+
+		return availableFormats[0];
+	}
+
+	VkPresentModeKHR App::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
+		for (const auto& elem : availablePresentModes)
+			if (elem == VK_PRESENT_MODE_MAILBOX_KHR)
+				return elem;
+
+		return VK_PRESENT_MODE_FIFO_KHR;
+	}
+
+	VkExtent2D App::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+			return capabilities.currentExtent;
+		
+		int width, height;
+		glfwGetFramebufferSize(m_PWindow->GetGLFWwindowPointer(), &width, &height);
+
+		VkExtent2D actualExtent = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
+		
+		actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+		actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+		
+		return actualExtent;
 	}
 
 	bool App::CheckDeviceExtSupport(VkPhysicalDevice device) {
@@ -354,7 +472,6 @@ namespace rnd {
 		}
 
 		return details;
-
 	}
 
 	

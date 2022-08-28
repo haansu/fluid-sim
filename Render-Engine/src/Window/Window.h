@@ -22,7 +22,7 @@ namespace rnd {
 		const int m_Height;
 		std::string m_Title;
 
-		GLFWwindow* m_Window;
+		GLFWwindow* m_PWindow;
 		uint32_t m_ExtensionCount = 0;
 
 	};

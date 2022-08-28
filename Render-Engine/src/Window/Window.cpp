@@ -10,7 +10,7 @@ namespace rnd {
 	}
 
 	Window::~Window() {
-		glfwDestroyWindow(m_Window);
+		glfwDestroyWindow(m_PWindow);
 		glfwTerminate();
 	}
 
@@ -19,15 +19,15 @@ namespace rnd {
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
+		m_PWindow = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
 	}
 
 	bool Window::ShouldClose() {
-		return glfwWindowShouldClose(m_Window);
+		return glfwWindowShouldClose(m_PWindow);
 	}
 
 	GLFWwindow* Window::GetGLFWwindowPointer() {
-		return m_Window;
+		return m_PWindow;
 	}
 
 

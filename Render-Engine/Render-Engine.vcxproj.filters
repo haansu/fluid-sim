@@ -24,6 +24,7 @@
     <ClInclude Include="src\Elements\Vector3.h" />
     <ClInclude Include="src\Elements\Vector2.h" />
     <ClInclude Include="src\Core\Extra.h" />
+    <ClInclude Include="src\Core\Helper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Window\Window.cpp">
@@ -33,8 +34,11 @@
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Core\Extra.cpp" />
+    <ClCompile Include="src\Core\Helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="src\Shaders\shader.vert" />
+    <None Include="src\Shaders\shader.frag" />
   </ItemGroup>
 </Project>

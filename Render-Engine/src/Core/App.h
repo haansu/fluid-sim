@@ -2,14 +2,16 @@
 
 #include "../Defs.h"
 #include "../Core.h"
-#include "../Window/Window.h"
 
 #include <vector>
 #include <optional>
 
 namespace rnd {
 
+	class Window;
+
 	struct QFamilyInd;
+	struct SwapChainSupportDetails;
 
 	class App final {
 	public:
@@ -20,6 +22,8 @@ namespace rnd {
 		void MainLoop();
 		void CleanUp();
 		void CreateInstance();
+
+		void InitObjects();
 
 		void SetupDebugMsgr();
 		void PopulateDebugMsgrCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
@@ -40,13 +44,20 @@ namespace rnd {
 		void CreateLogicalDevice();
 		void CreateSurface();
 		void CreateSwapChain();
+		void CreateImageViews();
+		void CreateGraphicsPipeline();
+
+		VkShaderModule CreateShaderModule(const std::vector<char>& code);
+
+		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
 		bool CheckDeviceExtSupport(VkPhysicalDevice device);
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 
 	private_var:
-		// Note: Move initialization to constructor at some point
-		Window m_Window { 800, 600, "Vulkan" };
+		Window* m_PWindow;
 
 		VkInstance m_VkInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
@@ -60,7 +71,8 @@ namespace rnd {
 		VkFormat m_SwapChainImageFormat;
 		VkExtent2D m_SwapChainExtent;
 
-		std::vector<VkImage> m_SwapChainImgs;
+		std::vector<VkImage> m_SwapChainImages;
+		std::vector<VkImageView> m_SwapChainImageViews;
 
 		VkQueue m_GraphicsQueue;
 		VkQueue	m_PresentQueue;
