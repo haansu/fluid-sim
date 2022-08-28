@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace rnd::Helper {
+namespace Render::Helper {
 
 	[[nodiscard]] std::vector<char> ReadFile(const std::string& fileName);
 

@@ -3,7 +3,7 @@
 #include "../Core.h"
 #include "../Defs.h"
 
-namespace rnd {
+namespace Render {
 
 	class Window final {
 	public:
