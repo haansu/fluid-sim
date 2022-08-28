@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "App.h"
 #include "Extra.h"
 #include "Helper.h"
@@ -12,8 +13,21 @@
 #include <optional>
 #include <set>
 
-namespace rnd {
-		
+namespace Render {
+
+	struct QFamilyInd {
+		std::optional<uint32_t> graphicsFamily;
+		std::optional<uint32_t> presentFamily;
+
+		inline bool IsComplete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
+	};
+
+	struct SwapChainSupportDetails {
+		VkSurfaceCapabilitiesKHR capabilities;
+		std::vector<VkSurfaceFormatKHR> formats;
+		std::vector<VkPresentModeKHR> presentModes;
+	};	
+
 	void App::Run() {
 		Init();
 		MainLoop();
@@ -332,7 +346,9 @@ namespace rnd {
 		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, m_SwapChainImages.data());
 
 		m_SwapChainImageFormat = surfaceFormat.format;
-		m_SwapChainExtent = extent;
+		
+		// May cause problems in the future
+		m_SwapChainExtent = &extent;
 	}
 
 	void App::CreateImageViews() {
