@@ -2,58 +2,16 @@
 
 #include <vector>
 
-#define RENDER_API		__declspec(dllexport)
-#define public_var		public
-#define private_var		private
+#include <vulkan/vulkan_core.h>
 
-#define VKAPI_ATTR
-#define VKAPI_CALL		__stdcall
-#define VK_NULL_HANDLE	nullptr
-
-// Forward declared Vulkan
-
-struct VkInstance_T;
-struct VkSurfaceKHR_T;
-struct VkDevice_T;
-struct VkPhysicalDevice_T;
-struct VkQueue_T;
-struct VkImage_T;
-struct VkImageView_T;
-struct VkShaderModule_T;
-struct VkSwapchainKHR_T;
-struct VkDebugUtilsMessengerEXT_T;
-
-typedef VkInstance_T*				VkInstance;
-typedef VkSurfaceKHR_T*				VkSurfaceKHR;
-typedef VkDevice_T*					VkDevice;
-typedef VkPhysicalDevice_T*			VkPhysicalDevice;
-typedef VkQueue_T*					VkQueue;
-typedef VkImage_T*					VkImage;
-typedef VkImageView_T*				VkImageView;
-typedef VkShaderModule_T*			VkShaderModule;
-typedef VkSwapchainKHR_T*			VkSwapchainKHR;
-typedef VkDebugUtilsMessengerEXT_T* VkDebugUtilsMessengerEXT;
-
-typedef uint32_t VkFlags;
-typedef uint32_t VkBool32;
-typedef VkFlags VkDebugUtilsMessageTypeFlagsEXT;
-
-struct VkSurfaceFormatKHR;
-struct VkExtent2D;
-struct VkDebugUtilsMessengerCreateInfoEXT;
-struct VkDebugUtilsMessengerCallbackDataEXT;
-struct VkSurfaceCapabilitiesKHR;
-
-enum VkFormat;
-enum VkDebugUtilsMessageSeverityFlagBitsEXT;
-enum VkPresentModeKHR;
-enum VkPresentModeKHR;
+#include "../Defs.h"
 
 namespace Render {
 
 	// Forward declared Local
 
 	class Window;
+
 	struct QFamilyInd;
 	struct SwapChainSupportDetails;
 
@@ -89,6 +47,7 @@ namespace Render {
 		void CreateSurface();
 		void CreateSwapChain();
 		void CreateImageViews();
+		void CreateRenderPass();
 		void CreateGraphicsPipeline();
 
 		VkShaderModule CreateShaderModule(const std::vector<char>& code);
@@ -117,6 +76,10 @@ namespace Render {
 
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VkImageView> m_SwapChainImageViews;
+
+		VkRenderPass m_RenderPass;
+		VkPipelineLayout m_PipelineLayout;
+		VkPipeline m_GraphicsPipeline;
 
 		VkQueue m_GraphicsQueue;
 		VkQueue	m_PresentQueue;

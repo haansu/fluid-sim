@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../Core.h"
-
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace Render {
 
@@ -12,10 +11,9 @@ namespace Render {
 	constexpr bool enableValLayers = false;
 #endif
 
-
 	const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
 
-	const std::vector<const char*> deviceExts = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+	const std::vector<const char*> deviceExts = { "VK_KHR_swapchain" };
 
 	VkResult CreateDebugUtilsMesageEXT(VkInstance instance
 		, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo
