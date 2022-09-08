@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Core.h"
 #include "../Defs.h"
+
+struct GLFWWindow;
 
 namespace Render {
 

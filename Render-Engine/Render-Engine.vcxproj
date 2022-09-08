@@ -109,9 +109,6 @@
   <ItemGroup>
     <ClInclude Include="src\Core\Extra.h" />
     <ClInclude Include="src\Core\Helper.h" />
-    <ClInclude Include="src\Elements\Elem.h" />
-    <ClInclude Include="src\Elements\Vector2.h" />
-    <ClInclude Include="src\Elements\Vector3.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core.h" />
