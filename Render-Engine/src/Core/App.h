@@ -8,7 +8,7 @@
 
 namespace Render {
 
-	// Forward declared Local
+	// Forward declared local stuff
 
 	class Window;
 
@@ -49,6 +49,8 @@ namespace Render {
 		void CreateImageViews();
 		void CreateRenderPass();
 		void CreateGraphicsPipeline();
+		void CreateFrameBuffers();
+		void CreateCommandPool();
 
 		VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
@@ -72,14 +74,17 @@ namespace Render {
 
 		VkSwapchainKHR m_SwapChain;
 		VkFormat m_SwapChainImageFormat;
-		VkExtent2D* m_SwapChainExtent;
+		VkExtent2D m_SwapChainExtent;
 
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VkImageView> m_SwapChainImageViews;
+		std::vector<VkFramebuffer> m_Framebuffers;
 
 		VkRenderPass m_RenderPass;
 		VkPipelineLayout m_PipelineLayout;
 		VkPipeline m_GraphicsPipeline;
+
+		VkCommandPool m_ComandPool;
 
 		VkQueue m_GraphicsQueue;
 		VkQueue	m_PresentQueue;

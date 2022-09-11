@@ -45,6 +45,7 @@ namespace Render {
 		CreateImageViews();
 		CreateRenderPass();
 		CreateGraphicsPipeline();
+		CreateFrameBuffers();
 	}
 
 	void App::InitObjects() {
@@ -58,6 +59,11 @@ namespace Render {
 	}
 
 	void App::CleanUp() {
+		vkDestroyCommandPool(m_Device, m_ComandPool, nullptr);
+
+		for (auto elem : m_Framebuffers)
+			vkDestroyFramebuffer(m_Device, elem, nullptr);
+
 		vkDestroyPipeline(m_Device, m_GraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
 		vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
@@ -352,8 +358,7 @@ namespace Render {
 
 		m_SwapChainImageFormat = surfaceFormat.format;
 		
-		// May cause problems in the future
-		m_SwapChainExtent = &extent;
+		m_SwapChainExtent = extent;
 	}
 
 	void App::CreateImageViews() {
@@ -521,20 +526,51 @@ namespace Render {
 		pipelineInfo.pViewportState = &viewportStateInfo;
 		pipelineInfo.pRasterizationState = &rasterizerInfo;
 		pipelineInfo.pMultisampleState = &multisamplingInfo;
-		//pipelineInfo.pDepthStencilState = nullptr;
+		pipelineInfo.pDepthStencilState = nullptr;
 		pipelineInfo.pColorBlendState = &colorBlendingInfo;
 		pipelineInfo.pDynamicState = &dynamicStateInfo;
 		pipelineInfo.layout = m_PipelineLayout;
 		pipelineInfo.renderPass = m_RenderPass;
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-		//pipelineInfo.basePipelineIndex = -1;
+		pipelineInfo.basePipelineIndex = -1;
 
 		if (vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline) != VK_SUCCESS)
 			throw std::runtime_error("Failed to create graphics pipeline!");
 
 		vkDestroyShaderModule(m_Device, vertShaderModule, nullptr);
 		vkDestroyShaderModule(m_Device, fragShaderModule, nullptr);
+	}
+
+	void App::CreateFrameBuffers() {
+		m_Framebuffers.resize(m_SwapChainImageViews.size());
+		for (size_t i = 0; i < m_SwapChainImageViews.size(); i++) {
+			VkImageView attachments[] = { m_SwapChainImageViews[i] };
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = m_RenderPass;
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.width = m_SwapChainExtent.width;
+			framebufferInfo.height = m_SwapChainExtent.height;
+			framebufferInfo.layers = 1;
+
+			if (vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr, &m_Framebuffers[i]) != VK_SUCCESS)
+				throw std::runtime_error("Failed to create framebuffer!");
+		}
+	}
+
+	void App::CreateCommandPool() {
+		QFamilyInd qFamInds = FindQFamilies(m_PhysicalDevice);
+
+		VkCommandPoolCreateInfo commandPoolInfo{};
+		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		commandPoolInfo.queueFamilyIndex = qFamInds.graphicsFamily.value();
+
+		if (vkCreateCommandPool(m_Device, &commandPoolInfo, nullptr, &m_ComandPool) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create command pool!");
 	}
 
 	VkShaderModule App::CreateShaderModule(const std::vector<char>& code) {
