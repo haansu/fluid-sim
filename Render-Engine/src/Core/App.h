@@ -51,6 +51,12 @@ namespace Render {
 		void CreateGraphicsPipeline();
 		void CreateFrameBuffers();
 		void CreateCommandPool();
+		void CreateCommandBuffer();
+		void CreateSyncObjects();
+
+		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index);
+
+		void DrawFrame();
 
 		VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
@@ -85,6 +91,11 @@ namespace Render {
 		VkPipeline m_GraphicsPipeline;
 
 		VkCommandPool m_ComandPool;
+		VkCommandBuffer m_CommandBuffer;
+
+		VkSemaphore m_ImageAvailableSemaphore;
+		VkSemaphore m_RenderFinishedSemaphore;
+		VkFence m_IFFence;
 
 		VkQueue m_GraphicsQueue;
 		VkQueue	m_PresentQueue;
