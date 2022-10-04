@@ -3,15 +3,17 @@
 #include "App.h"
 #include "Extra.h"
 #include "Helper.h"
+#include "Vertex.h"
 
 #include "../Core.h"
 #include "../Window/Window.h"
 
 #include <algorithm>
+#include <array>
 #include <limits>
-#include <vector>
 #include <optional>
 #include <set>
+#include <vector>
 
 namespace Render {
 
@@ -31,7 +33,7 @@ namespace Render {
 	void App::Run() {
 		Init();
 		MainLoop();
-		CleanUp();
+		Cleanup();
 	}
 
 	void App::Init() {
@@ -47,7 +49,8 @@ namespace Render {
 		CreateGraphicsPipeline();
 		CreateFrameBuffers();
 		CreateCommandPool();
-		CreateCommandBuffer();
+		CreateVertexBuffers();
+		CreateCommandBuffers();
 		CreateSyncObjects();
 	}
 
@@ -64,10 +67,17 @@ namespace Render {
 		vkDeviceWaitIdle(m_Device);
 	}
 
-	void App::CleanUp() {
-		vkDestroySemaphore(m_Device, m_RenderFinishedSemaphore, nullptr);
-		vkDestroySemaphore(m_Device, m_ImageAvailableSemaphore, nullptr);
-		vkDestroyFence(m_Device, m_IFFence, nullptr);
+	void App::Cleanup() {
+		CleanupSwapChain();
+
+		vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
+		vkFreeMemory(m_Device, m_VertexBufferMem, nullptr);
+
+		for (size_t i = 0; i < s_MaxFramesInFlight; i++) {
+			vkDestroySemaphore(m_Device, m_RenderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(m_Device, m_ImageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(m_Device, m_IFFences[i], nullptr);
+		}
 
 		vkDestroyCommandPool(m_Device, m_ComandPool, nullptr);
 
@@ -199,12 +209,13 @@ namespace Render {
 		return true;
 	}
 
-	VKAPI_ATTR VkBool32 VKAPI_CALL App::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
+	VKAPI_ATTR VkBool32 VKAPI_CALL App::DebugCallback(
+		  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
 		, VkDebugUtilsMessageTypeFlagsEXT messageType
 		, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData
 		, void* pUserData) {
-		std::cerr << "Validation layer: " << pCallbackData->pMessage << "\n";
 
+		std::cerr << "Validation layer: " << pCallbackData->pMessage << "\n";
 		return VK_FALSE;
 	}
 
@@ -465,10 +476,15 @@ namespace Render {
 			, fragShaderStageInfo
 		};
 
+		auto bindingDescr = Vertex::GetBindingDescription();
+		auto attributeDescrs = Vertex::GetAttributeDescriptions();
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescrs.size());
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescr;
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescrs.data();
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
 		inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -584,18 +600,135 @@ namespace Render {
 			throw std::runtime_error("Failed to create command pool!");
 	}
 
-	void App::CreateCommandBuffer() {
+	void App::CreateCommandBuffers() {
+		m_CommandBuffers.resize(s_MaxFramesInFlight);
+
 		VkCommandBufferAllocateInfo commandBufferAllocInfo{};
 		commandBufferAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		commandBufferAllocInfo.commandPool = m_ComandPool;
 		commandBufferAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		commandBufferAllocInfo.commandBufferCount = 1;
+		commandBufferAllocInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
 
-		if (vkAllocateCommandBuffers(m_Device, &commandBufferAllocInfo, &m_CommandBuffer) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(m_Device, &commandBufferAllocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
 			throw std::runtime_error("Failed to allocate command buffers!");
 	}
 
+	void App::CreateVertexBuffers() {
+		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+		
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMem;
+
+		CreateBuffer(
+			  m_Device
+			, bufferSize
+			, VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+			, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+			, stagingBuffer
+			, stagingBufferMem
+		);
+
+		void* data;
+		vkMapMemory(m_Device, stagingBufferMem, 0, bufferSize, 0, &data);
+		memcpy(data, vertices.data(), (size_t)bufferSize);
+		vkUnmapMemory(m_Device, stagingBufferMem);
+
+		CreateBuffer(
+			  m_Device
+			, bufferSize
+			, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+			, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+			, m_VertexBuffer
+			, m_VertexBufferMem
+		);
+
+		CopyBuffer(
+			  m_Device, m_ComandPool, m_GraphicsQueue
+			, stagingBuffer, m_VertexBuffer, bufferSize
+		);
+
+		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
+		vkFreeMemory(m_Device, stagingBufferMem, nullptr);
+	}
+
+	void App::CreateBuffer(
+		  VkDevice& device
+		, VkDeviceSize size
+		, VkBufferUsageFlags usgFlags
+		, VkMemoryPropertyFlags props
+		, VkBuffer& buffer
+		, VkDeviceMemory& bufferMem) {
+
+		VkBufferCreateInfo bufferInfo{};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = size;
+		bufferInfo.usage = usgFlags;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create vertex buffer!");
+
+		VkMemoryRequirements bufferMemReq{};
+		vkGetBufferMemoryRequirements(device, buffer, &bufferMemReq);
+
+		VkMemoryAllocateInfo mallocInfo{};
+		mallocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		mallocInfo.allocationSize = bufferMemReq.size;
+		mallocInfo.memoryTypeIndex = FindMemType(bufferMemReq.memoryTypeBits, props);
+
+		if (vkAllocateMemory(device, &mallocInfo, nullptr, &bufferMem) != VK_SUCCESS)
+			throw std::runtime_error("Failed to allocate memory for the vertex buffer!");
+
+		vkBindBufferMemory(device, buffer, bufferMem, 0);
+	}
+
+	void App::CopyBuffer(
+		  VkDevice& device
+		, VkCommandPool& commandPool
+		, VkQueue& graphicsQueue
+		, VkBuffer fromBuffer
+		, VkBuffer toBuffer
+		, VkDeviceSize size) {
+
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool = m_ComandPool;
+		allocInfo.commandBufferCount = 1;
+
+		VkCommandBuffer commBuffer;
+		vkAllocateCommandBuffers(device, &allocInfo, &commBuffer);
+
+		VkCommandBufferBeginInfo commBeginInfo{};
+		commBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		commBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		vkBeginCommandBuffer(commBuffer, &commBeginInfo);
+
+		VkBufferCopy bufferCopy{};
+		bufferCopy.size = size;
+		//bufferCopy.srcOffset = 0;
+		//bufferCopy.dstOffset = 0;
+		vkCmdCopyBuffer(commBuffer, fromBuffer, toBuffer, 1, &bufferCopy);
+
+		vkEndCommandBuffer(commBuffer);
+
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commBuffer;
+
+		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(graphicsQueue);
+
+		vkFreeCommandBuffers(device, commandPool, 1, &commBuffer);
+	}
+
 	void App::CreateSyncObjects() {
+		m_ImageAvailableSemaphores.resize(s_MaxFramesInFlight);
+		m_RenderFinishedSemaphores.resize(s_MaxFramesInFlight);
+		m_IFFences.resize(s_MaxFramesInFlight);
+
 		VkSemaphoreCreateInfo semaphoreInfo{};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -603,10 +736,39 @@ namespace Render {
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		if (   vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphore) != VK_SUCCESS
-			|| vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphore) != VK_SUCCESS
-			|| vkCreateFence(m_Device, &fenceInfo, nullptr, &m_IFFence) != VK_SUCCESS)
-			throw std::runtime_error("Failed to create sync objects!");
+		for (size_t i = 0; i < s_MaxFramesInFlight; i++)
+			if (vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]) != VK_SUCCESS
+				|| vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]) != VK_SUCCESS
+				|| vkCreateFence(m_Device, &fenceInfo, nullptr, &m_IFFences[i]) != VK_SUCCESS)
+				throw std::runtime_error("Failed to create sync objects!");
+	}
+
+	void App::CleanupSwapChain() {
+		for (size_t i = 0; i < m_Framebuffers.size(); i++)
+			vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
+
+		for (size_t i = 0; i < m_SwapChainImageViews.size(); i++)
+			vkDestroyImageView(m_Device, m_SwapChainImageViews[i], nullptr);
+
+		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+	}
+
+	void App::RecreateSwapChain() {
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(m_PWindow->GetGLFWwindowPointer(), &width, &height);
+
+		while (!width && !height) {
+			glfwGetFramebufferSize(m_PWindow->GetGLFWwindowPointer(), &width, &height);
+			glfwWaitEvents();
+		}
+
+		vkDeviceWaitIdle(m_Device);
+		
+		CleanupSwapChain();
+
+		CreateSwapChain();
+		CreateImageViews();
+		CreateFrameBuffers();
 	}
 
 	void App::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index) {
@@ -631,6 +793,13 @@ namespace Render {
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 		
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+		
+		VkBuffer vertexBuffers[] = { m_VertexBuffer };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+		vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		
 		VkViewport viewPort{};
 		viewPort.x = 0.0f;
 		viewPort.y = 0.0f;
@@ -657,16 +826,24 @@ namespace Render {
 	}
 
 	void App::DrawFrame() {
-		vkWaitForFences(m_Device, 1, &m_IFFence, VK_TRUE, UINT64_MAX);
-		vkResetFences(m_Device, 1, &m_IFFence);
+		vkWaitForFences(m_Device, 1, &m_IFFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imgInd;
-		vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imgInd);
-		vkResetCommandBuffer(m_CommandBuffer, 0);
-		RecordCommandBuffer(m_CommandBuffer, imgInd);
+		VkResult res = vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imgInd);
 
-		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphore };
-		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore };
+		if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {
+			RecreateSwapChain();
+			return;
+		}
+		else if (res != VK_SUCCESS)
+			throw::std::runtime_error("Failed to acquire swap chain image");
+
+		vkResetFences(m_Device, 1, &m_IFFences[m_CurrentFrame]);
+
+		RecordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
+
+		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
+		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		
 		VkSubmitInfo submitInfo{};
@@ -675,11 +852,11 @@ namespace Render {
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &m_CommandBuffer;
+		submitInfo.pCommandBuffers = &m_CommandBuffers[m_CurrentFrame];
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_IFFence) != VK_SUCCESS)
+		if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_IFFences[m_CurrentFrame]) != VK_SUCCESS)
 			throw std::runtime_error("Failed to submit draw command buffer!");
 
 		VkSwapchainKHR swapChains[] = { m_SwapChain };
@@ -692,8 +869,27 @@ namespace Render {
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &imgInd;
 
-		vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+		res = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
 
+		if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR || m_PWindow->framebufferResized) {
+			m_PWindow->framebufferResized = false;
+			RecreateSwapChain();
+		}
+		else if (res != VK_SUCCESS)
+			throw std::runtime_error("Failed to present swap chain image!");
+
+		m_CurrentFrame = (m_CurrentFrame + 1) % s_MaxFramesInFlight;
+	}
+
+	uint32_t App::FindMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties) {
+		VkPhysicalDeviceMemoryProperties memProps;
+		vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProps);
+	
+		for (uint32_t i = 0; i < memProps.memoryTypeCount; i++)
+			if ((memTypeFilter & (1 << i)) && (memProps.memoryTypes[i].propertyFlags & properties) == properties)
+				return i;
+
+		throw std::runtime_error("Failed to find memory type");
 	}
 
 	VkShaderModule App::CreateShaderModule(const std::vector<char>& code) {
@@ -733,7 +929,7 @@ namespace Render {
 		glfwGetFramebufferSize(m_PWindow->GetGLFWwindowPointer(), &width, &height);
 
 		VkExtent2D actualExtent = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
-		
+
 		actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
 		actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 		

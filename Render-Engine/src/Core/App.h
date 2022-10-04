@@ -22,7 +22,7 @@ namespace Render {
 	private:
 		void Init();
 		void MainLoop();
-		void CleanUp();
+		void Cleanup();
 		void CreateInstance();
 
 		void InitObjects();
@@ -34,10 +34,12 @@ namespace Render {
 
 		bool CheckValLayerSupport();
 
-		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
+		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+			  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
 			, VkDebugUtilsMessageTypeFlagsEXT messageType
 			, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData
-			, void* pUserData);
+			, void* pUserData
+		);
 
 		void PickPhysicalDevice();
 		bool IsDeviceSuitable(VkPhysicalDevice device);
@@ -51,12 +53,36 @@ namespace Render {
 		void CreateGraphicsPipeline();
 		void CreateFrameBuffers();
 		void CreateCommandPool();
-		void CreateCommandBuffer();
+		void CreateCommandBuffers();
+		void CreateVertexBuffers();
 		void CreateSyncObjects();
+
+		void CreateBuffer(
+			  VkDevice& device
+			, VkDeviceSize size
+			, VkBufferUsageFlags usgFlags
+			, VkMemoryPropertyFlags props
+			, VkBuffer& buffer
+			, VkDeviceMemory& bufferMem
+		);
+
+		void CopyBuffer(
+			  VkDevice& device
+			, VkCommandPool& commandPool
+			, VkQueue& graphicsQueue
+			, VkBuffer fromBuffer
+			, VkBuffer toBuffer
+			, VkDeviceSize size
+		);
+
+		void CleanupSwapChain();
+		void RecreateSwapChain();
 
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index);
 
 		void DrawFrame();
+
+		uint32_t FindMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties);
 
 		VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
@@ -68,6 +94,9 @@ namespace Render {
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 
 	private_var:
+		static const uint8_t s_MaxFramesInFlight = 2;
+		uint32_t m_CurrentFrame = 0;
+
 		Window* m_PWindow;
 
 		VkInstance m_VkInstance;
@@ -90,12 +119,15 @@ namespace Render {
 		VkPipelineLayout m_PipelineLayout;
 		VkPipeline m_GraphicsPipeline;
 
-		VkCommandPool m_ComandPool;
-		VkCommandBuffer m_CommandBuffer;
+		VkBuffer m_VertexBuffer;
+		VkDeviceMemory m_VertexBufferMem;
 
-		VkSemaphore m_ImageAvailableSemaphore;
-		VkSemaphore m_RenderFinishedSemaphore;
-		VkFence m_IFFence;
+		VkCommandPool m_ComandPool;
+		std::vector<VkCommandBuffer> m_CommandBuffers;
+
+		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
+		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
+		std::vector<VkFence> m_IFFences;
 
 		VkQueue m_GraphicsQueue;
 		VkQueue	m_PresentQueue;

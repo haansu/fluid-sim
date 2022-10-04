@@ -22,6 +22,7 @@
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Core\Extra.h" />
     <ClInclude Include="src\Core\Helper.h" />
+    <ClInclude Include="src\Core\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Window\Window.cpp">
@@ -32,6 +33,7 @@
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Core\Extra.cpp" />
     <ClCompile Include="src\Core\Helper.cpp" />
+    <ClCompile Include="src\Core\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
