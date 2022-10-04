@@ -116,6 +116,7 @@
     <ClInclude Include="src\Core\Render.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Extra.cpp" />
@@ -126,6 +127,7 @@
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Core\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

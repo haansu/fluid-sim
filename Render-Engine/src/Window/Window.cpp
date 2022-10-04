@@ -20,9 +20,17 @@ namespace Render {
 	void Window::CreateWindow() {
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		
+		//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		m_PWindow = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
+		glfwSetWindowUserPointer(m_PWindow, this);
+		glfwSetFramebufferSizeCallback(m_PWindow, FramebufferResizeCallback);
+	}
+
+	void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height) {
+		auto tWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+		tWindow->framebufferResized = true;
 	}
 
 	bool Window::ShouldClose() {
@@ -32,6 +40,5 @@ namespace Render {
 	GLFWwindow* Window::GetGLFWwindowPointer() {
 		return m_PWindow;
 	}
-
 
 }

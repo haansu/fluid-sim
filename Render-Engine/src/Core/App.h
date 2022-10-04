@@ -8,7 +8,7 @@
 
 namespace Render {
 
-	// Forward declared Local
+	// Forward declared local stuff
 
 	class Window;
 
@@ -22,7 +22,7 @@ namespace Render {
 	private:
 		void Init();
 		void MainLoop();
-		void CleanUp();
+		void Cleanup();
 		void CreateInstance();
 
 		void InitObjects();
@@ -34,10 +34,12 @@ namespace Render {
 
 		bool CheckValLayerSupport();
 
-		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
+		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+			  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
 			, VkDebugUtilsMessageTypeFlagsEXT messageType
 			, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData
-			, void* pUserData);
+			, void* pUserData
+		);
 
 		void PickPhysicalDevice();
 		bool IsDeviceSuitable(VkPhysicalDevice device);
@@ -49,6 +51,38 @@ namespace Render {
 		void CreateImageViews();
 		void CreateRenderPass();
 		void CreateGraphicsPipeline();
+		void CreateFrameBuffers();
+		void CreateCommandPool();
+		void CreateCommandBuffers();
+		void CreateVertexBuffers();
+		void CreateSyncObjects();
+
+		void CreateBuffer(
+			  VkDevice& device
+			, VkDeviceSize size
+			, VkBufferUsageFlags usgFlags
+			, VkMemoryPropertyFlags props
+			, VkBuffer& buffer
+			, VkDeviceMemory& bufferMem
+		);
+
+		void CopyBuffer(
+			  VkDevice& device
+			, VkCommandPool& commandPool
+			, VkQueue& graphicsQueue
+			, VkBuffer fromBuffer
+			, VkBuffer toBuffer
+			, VkDeviceSize size
+		);
+
+		void CleanupSwapChain();
+		void RecreateSwapChain();
+
+		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index);
+
+		void DrawFrame();
+
+		uint32_t FindMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties);
 
 		VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
@@ -60,6 +94,9 @@ namespace Render {
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 
 	private_var:
+		static const uint8_t s_MaxFramesInFlight = 2;
+		uint32_t m_CurrentFrame = 0;
+
 		Window* m_PWindow;
 
 		VkInstance m_VkInstance;
@@ -72,14 +109,25 @@ namespace Render {
 
 		VkSwapchainKHR m_SwapChain;
 		VkFormat m_SwapChainImageFormat;
-		VkExtent2D* m_SwapChainExtent;
+		VkExtent2D m_SwapChainExtent;
 
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VkImageView> m_SwapChainImageViews;
+		std::vector<VkFramebuffer> m_Framebuffers;
 
 		VkRenderPass m_RenderPass;
 		VkPipelineLayout m_PipelineLayout;
 		VkPipeline m_GraphicsPipeline;
+
+		VkBuffer m_VertexBuffer;
+		VkDeviceMemory m_VertexBufferMem;
+
+		VkCommandPool m_ComandPool;
+		std::vector<VkCommandBuffer> m_CommandBuffers;
+
+		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
+		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
+		std::vector<VkFence> m_IFFences;
 
 		VkQueue m_GraphicsQueue;
 		VkQueue	m_PresentQueue;
