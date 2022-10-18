@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "Vertex.h"
-#include <vector>
-#include <array>
 #include <vulkan/vulkan.h>
 
 VkVertexInputBindingDescription Vertex::GetBindingDescription() {
@@ -25,5 +23,4 @@ std::array<VkVertexInputAttributeDescription, 2> Vertex::GetAttributeDescription
 	attrDescriptions[1].offset = offsetof(Vertex, color);
 
 	return attrDescriptions;
-
 }

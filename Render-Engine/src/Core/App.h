@@ -55,6 +55,7 @@ namespace Render {
 		void CreateCommandPool();
 		void CreateCommandBuffers();
 		void CreateVertexBuffers();
+		void CreateIndexBuffer();
 		void CreateSyncObjects();
 
 		void CreateBuffer(
@@ -120,7 +121,9 @@ namespace Render {
 		VkPipeline m_GraphicsPipeline;
 
 		VkBuffer m_VertexBuffer;
+		VkBuffer m_IndexBuffer;
 		VkDeviceMemory m_VertexBufferMem;
+		VkDeviceMemory m_IndexBufferMem;
 
 		VkCommandPool m_ComandPool;
 		std::vector<VkCommandBuffer> m_CommandBuffers;
