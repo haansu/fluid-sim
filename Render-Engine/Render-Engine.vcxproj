@@ -108,6 +108,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Extra.h" />
+    <ClInclude Include="src\Core\Graphics\GraphicsObj.h" />
     <ClInclude Include="src\Core\Helper.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Core\App.h" />
@@ -116,7 +117,7 @@
     <ClInclude Include="src\Core\Render.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Vertex.h" />
+    <ClInclude Include="src\Core\Graphics\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Extra.cpp" />
@@ -127,7 +128,7 @@
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Core\Vertex.cpp" />
+    <ClCompile Include="src\Core\Graphics\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
