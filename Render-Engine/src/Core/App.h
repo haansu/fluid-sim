@@ -50,12 +50,14 @@ namespace Render {
 		void CreateSwapChain();
 		void CreateImageViews();
 		void CreateRenderPass();
+		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline();
 		void CreateFrameBuffers();
 		void CreateCommandPool();
 		void CreateCommandBuffers();
 		void CreateVertexBuffers();
 		void CreateIndexBuffer();
+		void CreateUniformBuffers();
 		void CreateSyncObjects();
 
 		void CreateBuffer(
@@ -82,6 +84,7 @@ namespace Render {
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index);
 
 		void DrawFrame();
+		void UpdateUniformBuffer(uint32_t currentFrame);
 
 		uint32_t FindMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties);
 
@@ -120,10 +123,15 @@ namespace Render {
 		VkPipelineLayout m_PipelineLayout;
 		VkPipeline m_GraphicsPipeline;
 
+		VkDescriptorSetLayout m_DescriptorSetLayout;
+
 		VkBuffer m_VertexBuffer;
 		VkBuffer m_IndexBuffer;
 		VkDeviceMemory m_VertexBufferMem;
 		VkDeviceMemory m_IndexBufferMem;
+
+		std::vector<VkBuffer> m_UniformBuffers;
+		std::vector<VkDeviceMemory> m_UniformBuffersMem;
 
 		VkCommandPool m_ComandPool;
 		std::vector<VkCommandBuffer> m_CommandBuffers;

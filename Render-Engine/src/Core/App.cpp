@@ -3,7 +3,14 @@
 #include "App.h"
 #include "Extra.h"
 #include "Helper.h"
-#include "Vertex.h"
+#include "Graphics/Vertex.h"
+#include "Graphics/GraphicsObj.h"
+
+// GLM START
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+//
 
 #include "../Core.h"
 #include "../Window/Window.h"
@@ -14,6 +21,7 @@
 #include <optional>
 #include <set>
 #include <vector>
+#include <chrono>
 
 namespace Render {
 
@@ -46,11 +54,13 @@ namespace Render {
 		CreateSwapChain();
 		CreateImageViews();
 		CreateRenderPass();
+		CreateDescriptorSetLayout();
 		CreateGraphicsPipeline();
 		CreateFrameBuffers();
 		CreateCommandPool();
 		CreateVertexBuffers();
 		CreateIndexBuffer();
+		CreateUniformBuffers();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 	}
@@ -70,6 +80,13 @@ namespace Render {
 
 	void App::Cleanup() {
 		CleanupSwapChain();
+
+		for (size_t i = 0; i < s_MaxFramesInFlight; i++) {
+			vkDestroyBuffer(m_Device, m_UniformBuffers[i], nullptr);
+			vkFreeMemory(m_Device, m_UniformBuffersMem[i], nullptr);
+		}
+
+		vkDestroyDescriptorSetLayout(m_Device, m_DescriptorSetLayout, nullptr);
 
 		vkDestroyBuffer(m_Device, m_IndexBuffer, nullptr);
 		vkFreeMemory(m_Device, m_IndexBufferMem, nullptr);
@@ -453,6 +470,23 @@ namespace Render {
 			throw std::runtime_error("Failed to create render pass!");
 	}
 
+	void App::CreateDescriptorSetLayout() {
+		VkDescriptorSetLayoutBinding layoutBinding{};
+		layoutBinding.binding = 0;
+		layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		layoutBinding.descriptorCount = 1;
+		layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		layoutBinding.pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &layoutBinding;
+
+		if (vkCreateDescriptorSetLayout(m_Device, &layoutInfo, nullptr, &m_DescriptorSetLayout) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create descriptor set layout!");
+	}
+
 	// TO DO:
 	// Change shader path to relative path
 	void App::CreateGraphicsPipeline() {
@@ -542,7 +576,8 @@ namespace Render {
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0;
+		pipelineLayoutInfo.setLayoutCount = 1;
+		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 
 		if (vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
@@ -691,6 +726,23 @@ namespace Render {
 
 		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
 		vkFreeMemory(m_Device, stagingBufferMem, nullptr);
+	}
+
+	void App::CreateUniformBuffers() {
+		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	
+		m_UniformBuffers.resize(s_MaxFramesInFlight);
+		m_UniformBuffersMem.resize(s_MaxFramesInFlight);
+
+		for (size_t i = 0; i < s_MaxFramesInFlight; i++)
+			CreateBuffer(
+				m_Device
+				, bufferSize
+				, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+				, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+				, m_UniformBuffers[i]
+				, m_UniformBuffersMem[i]
+			);
 	}
 
 	void App::CreateBuffer(
@@ -885,6 +937,8 @@ namespace Render {
 
 		RecordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
 
+		UpdateUniformBuffer(m_CurrentFrame);
+
 		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
 		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -922,6 +976,38 @@ namespace Render {
 			throw std::runtime_error("Failed to present swap chain image!");
 
 		m_CurrentFrame = (m_CurrentFrame + 1) % s_MaxFramesInFlight;
+	}
+
+	void App::UpdateUniformBuffer(uint32_t currentFrame) {
+		static auto startTime	= std::chrono::high_resolution_clock::now();
+		auto		currentTime	= std::chrono::high_resolution_clock::now();
+		float		deltaTime	= std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+	
+		UniformBufferObject uniBuff{};
+		uniBuff.model = glm::rotate(
+			  glm::mat4(1.0f)
+			, deltaTime * glm::radians(90.0f)
+			, glm::vec3(0.0f, 0.0f, 1.0f)
+		);
+
+		uniBuff.view = glm::lookAt(
+			  glm::vec3(2.0f, 2.0f, 2.0f)
+			, glm::vec3(0.0f, 0.0f, 0.0f)
+			, glm::vec3(0.0f, 0.0f, 1.0f)
+		);
+
+		uniBuff.proj = glm::perspective(
+			  glm::radians(45.0f)
+			, (float) m_SwapChainExtent.width / (float) m_SwapChainExtent.height
+			,  0.1f, 10.0f
+		);
+
+		uniBuff.proj[1][1] *= -1;
+
+		void* data;
+		vkMapMemory(m_Device, m_UniformBuffersMem[currentFrame], 0, sizeof(uniBuff), 0, &data);
+		memcpy(data, &uniBuff, sizeof(uniBuff));
+		vkUnmapMemory(m_Device, m_UniformBuffersMem[currentFrame]);
 	}
 
 	uint32_t App::FindMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties) {
