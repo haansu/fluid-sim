@@ -50,6 +50,7 @@ namespace Render {
 		CreateFrameBuffers();
 		CreateCommandPool();
 		CreateVertexBuffers();
+		CreateIndexBuffer();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 	}
@@ -69,6 +70,9 @@ namespace Render {
 
 	void App::Cleanup() {
 		CleanupSwapChain();
+
+		vkDestroyBuffer(m_Device, m_IndexBuffer, nullptr);
+		vkFreeMemory(m_Device, m_IndexBufferMem, nullptr);
 
 		vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
 		vkFreeMemory(m_Device, m_VertexBufferMem, nullptr);
@@ -651,6 +655,44 @@ namespace Render {
 		vkFreeMemory(m_Device, stagingBufferMem, nullptr);
 	}
 
+	void App::CreateIndexBuffer() {
+		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMem;
+		
+		CreateBuffer(
+			  m_Device
+			, bufferSize
+			, VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+			, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+			, stagingBuffer
+			, stagingBufferMem
+		);
+
+		void* data;
+		vkMapMemory(m_Device, stagingBufferMem, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), (size_t)bufferSize);
+		vkUnmapMemory(m_Device, stagingBufferMem);
+
+		CreateBuffer(
+			  m_Device
+			, bufferSize
+			, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+			, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+			, m_IndexBuffer
+			, m_IndexBufferMem
+		);
+
+		CopyBuffer(
+			  m_Device, m_ComandPool, m_GraphicsQueue
+			, stagingBuffer, m_IndexBuffer, bufferSize
+		);
+
+		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
+		vkFreeMemory(m_Device, stagingBufferMem, nullptr);
+	}
+
 	void App::CreateBuffer(
 		  VkDevice& device
 		, VkDeviceSize size
@@ -707,8 +749,8 @@ namespace Render {
 
 		VkBufferCopy bufferCopy{};
 		bufferCopy.size = size;
-		//bufferCopy.srcOffset = 0;
-		//bufferCopy.dstOffset = 0;
+		bufferCopy.srcOffset = 0;
+		bufferCopy.dstOffset = 0;
 		vkCmdCopyBuffer(commBuffer, fromBuffer, toBuffer, 1, &bufferCopy);
 
 		vkEndCommandBuffer(commBuffer);
@@ -797,8 +839,9 @@ namespace Render {
 		VkBuffer vertexBuffers[] = { m_VertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-		vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 		
 		VkViewport viewPort{};
 		viewPort.x = 0.0f;
