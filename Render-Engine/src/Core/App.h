@@ -58,6 +58,8 @@ namespace Render {
 		void CreateVertexBuffers();
 		void CreateIndexBuffer();
 		void CreateUniformBuffers();
+		void CreateDescriptorPool();
+		void CreateDescriptorSets();
 		void CreateSyncObjects();
 
 		void CreateBuffer(
@@ -123,7 +125,10 @@ namespace Render {
 		VkPipelineLayout m_PipelineLayout;
 		VkPipeline m_GraphicsPipeline;
 
-		VkDescriptorSetLayout m_DescriptorSetLayout;
+		VkDescriptorSetLayout m_DescSetLayout;
+		VkDescriptorPool m_DescPool;
+
+		std::vector<VkDescriptorSet> m_DescSets;
 
 		VkBuffer m_VertexBuffer;
 		VkBuffer m_IndexBuffer;

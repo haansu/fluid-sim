@@ -62,6 +62,8 @@ namespace Render {
 		CreateIndexBuffer();
 		CreateUniformBuffers();
 		CreateCommandBuffers();
+		CreateDescriptorPool();
+		CreateDescriptorSets();
 		CreateSyncObjects();
 	}
 
@@ -86,7 +88,7 @@ namespace Render {
 			vkFreeMemory(m_Device, m_UniformBuffersMem[i], nullptr);
 		}
 
-		vkDestroyDescriptorSetLayout(m_Device, m_DescriptorSetLayout, nullptr);
+		vkDestroyDescriptorSetLayout(m_Device, m_DescSetLayout, nullptr);
 
 		vkDestroyBuffer(m_Device, m_IndexBuffer, nullptr);
 		vkFreeMemory(m_Device, m_IndexBufferMem, nullptr);
@@ -483,7 +485,7 @@ namespace Render {
 		layoutInfo.bindingCount = 1;
 		layoutInfo.pBindings = &layoutBinding;
 
-		if (vkCreateDescriptorSetLayout(m_Device, &layoutInfo, nullptr, &m_DescriptorSetLayout) != VK_SUCCESS)
+		if (vkCreateDescriptorSetLayout(m_Device, &layoutInfo, nullptr, &m_DescSetLayout) != VK_SUCCESS)
 			throw std::runtime_error("Failed to create descriptor set layout!");
 	}
 
@@ -541,7 +543,7 @@ namespace Render {
 		rasterizerInfo.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizerInfo.lineWidth = 1.0f;
 		rasterizerInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-		rasterizerInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		rasterizerInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizerInfo.depthBiasEnable = VK_FALSE;
 
 		VkPipelineMultisampleStateCreateInfo multisamplingInfo{};
@@ -577,7 +579,7 @@ namespace Render {
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
+		pipelineLayoutInfo.pSetLayouts = &m_DescSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 
 		if (vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
@@ -818,6 +820,55 @@ namespace Render {
 		vkFreeCommandBuffers(device, commandPool, 1, &commBuffer);
 	}
 
+	void App::CreateDescriptorPool() {
+		VkDescriptorPoolSize descPoolSize{};
+		descPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descPoolSize.descriptorCount = static_cast<uint32_t>(s_MaxFramesInFlight);
+
+		VkDescriptorPoolCreateInfo descPoolInfo{};
+		descPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		descPoolInfo.poolSizeCount = 1;
+		descPoolInfo.pPoolSizes = &descPoolSize;
+		descPoolInfo.maxSets = static_cast<uint32_t>(s_MaxFramesInFlight);
+
+		if (vkCreateDescriptorPool(m_Device, &descPoolInfo, nullptr, &m_DescPool) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create descriptor pool!");
+	}
+
+	void App::CreateDescriptorSets() {
+		std::vector<VkDescriptorSetLayout> layouts(s_MaxFramesInFlight, m_DescSetLayout);
+
+		VkDescriptorSetAllocateInfo descAllocInfo{};
+		descAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		descAllocInfo.descriptorPool = m_DescPool;
+		descAllocInfo.descriptorSetCount = static_cast<uint32_t>(s_MaxFramesInFlight);
+		descAllocInfo.pSetLayouts = layouts.data();
+
+		m_DescSets.resize(s_MaxFramesInFlight);
+		if (vkAllocateDescriptorSets(m_Device, &descAllocInfo, m_DescSets.data()) != VK_SUCCESS)
+			throw std::runtime_error("Failed to allocate descriptor sets!");
+
+		for (size_t i = 0; i < s_MaxFramesInFlight; i++) {
+			VkDescriptorBufferInfo descBufferInfo{};
+			descBufferInfo.buffer = m_UniformBuffers[i];
+			descBufferInfo.offset = 0;
+			descBufferInfo.range = sizeof(UniformBufferObject);
+
+			VkWriteDescriptorSet descWrite{};
+			descWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descWrite.dstSet = m_DescSets[i];
+			descWrite.dstBinding = 0;
+			descWrite.dstArrayElement = 0;
+			descWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descWrite.descriptorCount = 1;
+			descWrite.pBufferInfo = &descBufferInfo;
+			descWrite.pImageInfo = nullptr;
+			descWrite.pTexelBufferView = nullptr;
+
+			vkUpdateDescriptorSets(m_Device, 1, &descWrite, 0, nullptr);
+		}
+	}
+
 	void App::CreateSyncObjects() {
 		m_ImageAvailableSemaphores.resize(s_MaxFramesInFlight);
 		m_RenderFinishedSemaphores.resize(s_MaxFramesInFlight);
@@ -892,7 +943,7 @@ namespace Render {
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescSets[m_CurrentFrame], 0, nullptr);
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 		
 		VkViewport viewPort{};
@@ -986,12 +1037,12 @@ namespace Render {
 		UniformBufferObject uniBuff{};
 		uniBuff.model = glm::rotate(
 			  glm::mat4(1.0f)
-			, deltaTime * glm::radians(90.0f)
+			, deltaTime * glm::radians(10.0f)
 			, glm::vec3(0.0f, 0.0f, 1.0f)
 		);
 
 		uniBuff.view = glm::lookAt(
-			  glm::vec3(2.0f, 2.0f, 2.0f)
+			  glm::vec3(2.0f, 0.0f, 2.0f)
 			, glm::vec3(0.0f, 0.0f, 0.0f)
 			, glm::vec3(0.0f, 0.0f, 1.0f)
 		);
