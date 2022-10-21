@@ -59,8 +59,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;BLR_DEBUG;FS_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;FS_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -74,6 +74,11 @@
       <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Debug-x86_64\Render-Engine\Render-Engine.lib</ImportLibrary>
     </Link>
+    <PreBuildEvent>
+      <Command>call $(SolutionDir)scripts/shader_compile.bat
+IF EXIST $(SolutionDir)shaders\bin\ (xcopy /Q /E /Y /I $(SolutionDir)shaders\bin $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)shaders\bin $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders &gt; nul)
+IF EXIST $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders\ (xcopy /Q /E /Y /I $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders ..\bin\Debug-x86_64\App\shaders &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders ..\bin\Debug-x86_64\App\shaders &gt; nul)</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll ..\bin\Debug-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll ..\bin\Debug-x86_64\App &gt; nul)</Command>
     </PostBuildEvent>
@@ -83,8 +88,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;BLR_RELEASE;FS_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;FS_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -102,36 +107,40 @@
       <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Release-x86_64\Render-Engine\Render-Engine.lib</ImportLibrary>
     </Link>
+    <PreBuildEvent>
+      <Command>call $(SolutionDir)scripts/shader_compile.bat
+IF EXIST $(SolutionDir)shaders\bin\ (xcopy /Q /E /Y /I $(SolutionDir)shaders\bin $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)shaders\bin $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders &gt; nul)
+IF EXIST $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders\ (xcopy /Q /E /Y /I $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders ..\bin\Release-x86_64\App\shaders &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders ..\bin\Release-x86_64\App\shaders &gt; nul)</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll ..\bin\Release-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll ..\bin\Release-x86_64\App &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core.h" />
+    <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\Extra.h" />
     <ClInclude Include="src\Core\Graphics\GraphicsObj.h" />
+    <ClInclude Include="src\Core\Graphics\Vertex.h" />
     <ClInclude Include="src\Core\Helper.h" />
-    <ClInclude Include="src\Entities\Entity.h" />
-    <ClInclude Include="src\Core\App.h" />
-    <ClInclude Include="src\Core.h" />
-    <ClInclude Include="src\Defs.h" />
     <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Defs.h" />
+    <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Graphics\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Core\Extra.cpp" />
+    <ClCompile Include="src\Core\Graphics\Vertex.cpp" />
     <ClCompile Include="src\Core\Helper.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
-    <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Core\Graphics\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="src\Shaders\shader.frag" />
     <None Include="src\Shaders\shader.vert" />
   </ItemGroup>

@@ -1,0 +1,2 @@
+C:\VulkanSDK\1.3.216.0\Bin\glslc.exe ../Render-Engine/src/Shaders/shader.vert -o ../shaders/bin/vert.spv
+C:\VulkanSDK\1.3.216.0\Bin\glslc.exe ../Render-Engine/src/Shaders/shader.frag -o ../shaders/bin/frag.spv
