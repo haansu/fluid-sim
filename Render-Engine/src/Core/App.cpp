@@ -489,12 +489,9 @@ namespace Render {
 			throw std::runtime_error("Failed to create descriptor set layout!");
 	}
 
-	// TO DO:
-	// Change shader path to relative path
 	void App::CreateGraphicsPipeline() {
-		
-		auto vertShaderCode = Helper::ReadFile("C:/Users/Haansu/source/repos/fluid-sim/Render-Engine/src/Shaders/vert.spv");
-		auto fragShaderCode = Helper::ReadFile("C:/Users/Haansu/source/repos/fluid-sim/Render-Engine/src/Shaders/frag.spv");
+		auto vertShaderCode = Helper::ReadFile("shaders/vert.spv");
+		auto fragShaderCode = Helper::ReadFile("shaders/frag.spv");
 
 		VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
 		VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);

@@ -4,40 +4,67 @@
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Graphics">
+      <UniqueIdentifier>{2E10C882-9AD0-43B9-630B-8D36CF8A8895}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entities">
+      <UniqueIdentifier>{8AA33B53-7670-965E-9F89-84068BB5CBEC}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Window">
       <UniqueIdentifier>{3DEA79DA-298C-A4B0-1247-B804FE872B01}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core.h">
+    <ClInclude Include="src\Core.h" />
+    <ClInclude Include="src\Core\App.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Core\Extra.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Graphics\GraphicsObj.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Graphics\Vertex.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Helper.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Render.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Defs.h" />
+    <ClInclude Include="src\Entities\Entity.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
     <ClInclude Include="src\Window\Window.h">
       <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\App.h" />
-    <ClInclude Include="src\Defs.h" />
-    <ClInclude Include="src\Entities\Entity.h" />
-    <ClInclude Include="src\Core\Extra.h" />
-    <ClInclude Include="src\Core\Helper.h" />
-    <ClInclude Include="src\Core\Graphics\Vertex.h" />
-    <ClInclude Include="src\Core\Graphics\GraphicsObj.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\App.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Extra.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Graphics\Vertex.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Helper.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Entity.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\App.cpp" />
-    <ClCompile Include="src\Entities\Entity.cpp" />
-    <ClCompile Include="src\Core\Extra.cpp" />
-    <ClCompile Include="src\Core\Helper.cpp" />
-    <ClCompile Include="src\Core\Graphics\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="src\Shaders\shader.vert" />
     <None Include="src\Shaders\shader.frag" />
   </ItemGroup>

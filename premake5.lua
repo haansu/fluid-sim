@@ -19,6 +19,7 @@ LibDir = {}
 
 IncludeDir["GLFW"] = "vendor/lib/glfw/include"
 IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.216.0/Include"
+IncludeDir["stb"] = "vendor/lib/stb/include"
 
 LibDir["Vulkan"] = "C:/VulkanSDK/1.3.216.0/Lib"
 LibDir["GLFW"] = "vendor/lib/glfw/bin/Debug-x86_64/GLFW"
@@ -36,6 +37,7 @@ project "App"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("obj/" .. outputdir .. "/%{prj.name}")
+	debugdir("bin/" .. outputdir .. "/App")
 
 	files {
 		"App/src/**.h",
@@ -59,7 +61,6 @@ project "App"
 	links {
 		"GLFW.lib",
 		"vulkan-1.lib",
-		"Engine",
 		"Render-Engine"
 	}
 
@@ -71,18 +72,14 @@ project "App"
 		defines { "FS_APP" }
 	
 	filter "configurations:Debug"
-		defines "BLR_DEBUG"
+		defines "FS_DEBUG"
 		buildoptions "/MDd"
 		symbols "On"
 
-		defines { "FS_DEBUG" }
-
 	filter "configurations:Release"
-		defines "BLR_RELEASE"
+		defines "FS_RELEASE"
 		buildoptions "/MD"
 		optimize "On"
-
-		defines { "FS_RELEASE" }
 
 --
 -- Engine
@@ -95,6 +92,7 @@ project "Engine"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("obj/" .. outputdir .. "/%{prj.name}")
+	debugdir("bin/" .. outputdir .. "/App")
 
 	pchheader "pch.h"
 	pchsource "Engine/src/pch.cpp"
@@ -125,18 +123,14 @@ project "Engine"
 		}
 	
 	filter "configurations:Debug"
-		defines "BLR_DEBUG"
+		defines "FS_DEBUG"
 		buildoptions "/MDd"
 		symbols "On"
 
-		defines { "FS_DEBUG" }
-
 	filter "configurations:Release"
-		defines "BLR_RELEASE"
+		defines "FS_RELEASE"
 		buildoptions "/MD"
 		optimize "On"
-
-		defines { "FS_RELEASE" }
 
 --
 -- Render-Engine
@@ -149,6 +143,7 @@ project "Render-Engine"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("obj/" .. outputdir .. "/%{prj.name}")
+	debugdir("bin/" .. outputdir .. "/App")
 
 	pchheader "pch.h"
 	pchsource "Render-Engine/src/pch.cpp"
@@ -159,6 +154,7 @@ project "Render-Engine"
 	}
 
 	includedirs {
+		"%{IncludeDir.stb}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Vulkan}",
 		"Engine/src"
@@ -179,6 +175,12 @@ project "Render-Engine"
 		staticruntime "On"
 		systemversion "latest"
 
+		prebuildcommands {
+			("call $(SolutionDir)scripts/shader_compile.bat"),
+			("{COPY} $(SolutionDir)shaders/bin $(SolutionDir)bin/" .. outputdir .. "/%{prj.name}/shaders"),
+			("{COPY} $(SolutionDir)bin/" .. outputdir .. "/%{prj.name}/shaders ../bin/" .. outputdir .. "/App/shaders")
+		}
+
 		postbuildcommands {
 			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/App")
 		}
@@ -189,15 +191,11 @@ project "Render-Engine"
 		}
 	
 	filter "configurations:Debug"
-		defines "BLR_DEBUG"
+		defines "FS_DEBUG"
 		buildoptions "/MDd"
 		symbols "On"
 
-		defines { "FS_DEBUG" }
-
 	filter "configurations:Release"
-		defines "BLR_RELEASE"
+		defines "FS_RELEASE"
 		buildoptions "/MD"
 		optimize "On"
-
-		defines { "FS_RELEASE" }
