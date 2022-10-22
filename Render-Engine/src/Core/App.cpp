@@ -6,13 +6,13 @@
 #include "Graphics/Vertex.h"
 #include "Graphics/GraphicsObj.h"
 
-// GLM START
+// GLM
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 //
 
-// STB START
+// STB
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 //
@@ -63,7 +63,10 @@ namespace Render {
 		CreateGraphicsPipeline();
 		CreateFrameBuffers();
 		CreateCommandPool();
+
 		CreateTextureImage();
+		CreateTextureImageView();
+		
 		CreateVertexBuffers();
 		CreateIndexBuffer();
 		CreateUniformBuffers();
@@ -88,6 +91,8 @@ namespace Render {
 
 	void App::Cleanup() {
 		CleanupSwapChain();
+
+		vkDestroyImageView(m_Device, m_TextureImgView, nullptr);
 
 		vkDestroyImage(m_Device, m_TextureImg, nullptr);
 		vkFreeMemory(m_Device, m_TextureImgMem, nullptr);
@@ -407,39 +412,44 @@ namespace Render {
 			throw std::runtime_error("Failed to create swap chain!");
 
 		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, nullptr);
-		m_SwapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, m_SwapChainImages.data());
+		m_SwapChainImgs.resize(imageCount);
+		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, m_SwapChainImgs.data());
 
 		m_SwapChainImageFormat = surfaceFormat.format;
 		
 		m_SwapChainExtent = extent;
 	}
 
+	[[nodiscard]] VkImageView App::CreateImageView(VkImage img, VkFormat format) {
+		VkImageViewCreateInfo imgViewInfo{};
+		imgViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imgViewInfo.image = img;
+		imgViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		imgViewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+
+		imgViewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		imgViewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		imgViewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		imgViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+		imgViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		imgViewInfo.subresourceRange.baseMipLevel = 0;
+		imgViewInfo.subresourceRange.levelCount = 1;
+		imgViewInfo.subresourceRange.baseArrayLayer = 0;
+		imgViewInfo.subresourceRange.layerCount = 1;
+
+		VkImageView imgView;
+		if (vkCreateImageView(m_Device, &imgViewInfo, nullptr, &imgView) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create image view!");
+
+		return imgView;
+	}
+
 	void App::CreateImageViews() {
-		m_SwapChainImageViews.resize(m_SwapChainImages.size());
+		m_SwapChainImageViews.resize(m_SwapChainImgs.size());
 
-		for (size_t i = 0; i < m_SwapChainImages.size(); i++) {
-			VkImageViewCreateInfo createInfo{};
-			
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = m_SwapChainImages[i];
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = m_SwapChainImageFormat;
-			
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
-
-			if (vkCreateImageView(m_Device, &createInfo, nullptr, &m_SwapChainImageViews[i]) != VK_SUCCESS)
-				throw std::runtime_error("Failed to create image views!");
-		}
+		for (size_t i = 0; i < m_SwapChainImgs.size(); i++)
+			m_SwapChainImageViews[i] = CreateImageView(m_SwapChainImgs[i], m_SwapChainImageFormat);
 	}
 
 	void App::CreateRenderPass() {
@@ -716,6 +726,10 @@ namespace Render {
 		vkFreeMemory(m_Device, stagingBufferMem, nullptr);
 	}
 
+	void App::CreateTextureImageView() {
+		m_TextureImgView = CreateImageView(m_TextureImg, VK_FORMAT_R8G8B8A8_SRGB);
+	}
+
 	void App::CreateImage(
 		  uint32_t width
 		, uint32_t height
@@ -741,7 +755,7 @@ namespace Render {
 		imgInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		if (vkCreateImage(m_Device, &imgInfo, nullptr, &img) != VK_SUCCESS)
-			throw std::runtime_error("Failed to create imgage!");
+			throw std::runtime_error("Failed to create image!");
 
 		VkMemoryRequirements memReq;
 		vkGetImageMemoryRequirements(m_Device, img, &memReq);
@@ -807,7 +821,7 @@ namespace Render {
 		EndSTCommands(cmdBuffer);
 	}
 
-	VkCommandBuffer App::BeginSTCommands() {
+	[[nodiscard]] VkCommandBuffer App::BeginSTCommands() {
 		VkCommandBufferAllocateInfo mallocInfo{};
 
 		mallocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1248,7 +1262,7 @@ namespace Render {
 		throw std::runtime_error("Failed to find memory type");
 	}
 
-	VkShaderModule App::CreateShaderModule(const std::vector<char>& code) {
+	[[nodiscard]] VkShaderModule App::CreateShaderModule(const std::vector<char>& code) {
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.codeSize = code.size();
