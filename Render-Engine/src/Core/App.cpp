@@ -12,6 +12,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 //
 
+// STB START
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+//
+
 #include "../Core.h"
 #include "../Window/Window.h"
 
@@ -58,6 +63,7 @@ namespace Render {
 		CreateGraphicsPipeline();
 		CreateFrameBuffers();
 		CreateCommandPool();
+		CreateTextureImage();
 		CreateVertexBuffers();
 		CreateIndexBuffer();
 		CreateUniformBuffers();
@@ -82,6 +88,9 @@ namespace Render {
 
 	void App::Cleanup() {
 		CleanupSwapChain();
+
+		vkDestroyImage(m_Device, m_TextureImg, nullptr);
+		vkFreeMemory(m_Device, m_TextureImgMem, nullptr);
 
 		for (size_t i = 0; i < s_MaxFramesInFlight; i++) {
 			vkDestroyBuffer(m_Device, m_UniformBuffers[i], nullptr);
@@ -651,6 +660,187 @@ namespace Render {
 			throw std::runtime_error("Failed to allocate command buffers!");
 	}
 
+	void App::CreateTextureImage() {
+		int width, height, channels;
+		stbi_uc* pixels = stbi_load("textures/texture.jpg", &width, &height, &channels, STBI_rgb_alpha);
+		
+		VkDeviceSize imgSize = width * height * 4;
+
+		if (!pixels)
+			throw std::runtime_error("Failed to load texture image!");
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMem;
+		CreateBuffer(
+			  m_Device
+			, imgSize
+			, VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+			, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+			, stagingBuffer
+			, stagingBufferMem
+		);
+
+		void* data;
+		vkMapMemory(m_Device, stagingBufferMem, 0, imgSize, 0, &data);
+		memcpy(data, pixels, static_cast<size_t>(imgSize));
+		vkUnmapMemory(m_Device, stagingBufferMem);
+
+		stbi_image_free(pixels);
+		CreateImage(
+			  width
+			, height
+			, VK_FORMAT_R8G8B8A8_SRGB
+			, VK_IMAGE_TILING_OPTIMAL
+			, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT
+			, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+			, m_TextureImg
+			, m_TextureImgMem
+		);
+
+		TransitionImgLayout(
+			  m_TextureImg, VK_FORMAT_R8G8B8A8_SRGB
+			, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL	
+		);
+
+		CopyBufferToImg(
+			  stagingBuffer, m_TextureImg
+			, static_cast<uint32_t>(width), static_cast<uint32_t>(height)
+		);
+
+		TransitionImgLayout(
+			m_TextureImg, VK_FORMAT_R8G8B8A8_SRGB
+			, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+		);
+
+		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
+		vkFreeMemory(m_Device, stagingBufferMem, nullptr);
+	}
+
+	void App::CreateImage(
+		  uint32_t width
+		, uint32_t height
+		, VkFormat format
+		, VkImageTiling tiling
+		, VkImageUsageFlags usgFlags
+		, VkMemoryPropertyFlags props
+		, VkImage& img
+		, VkDeviceMemory& imgMem) {
+
+		VkImageCreateInfo imgInfo{};
+		imgInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		imgInfo.imageType = VK_IMAGE_TYPE_2D;
+		imgInfo.extent.width = width;
+		imgInfo.extent.height = height;
+		imgInfo.mipLevels = 1;
+		imgInfo.arrayLayers = 1;
+		imgInfo.format = format;
+		imgInfo.tiling = tiling;
+		imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		imgInfo.usage = usgFlags;
+		imgInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imgInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		if (vkCreateImage(m_Device, &imgInfo, nullptr, &img) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create imgage!");
+
+		VkMemoryRequirements memReq;
+		vkGetImageMemoryRequirements(m_Device, img, &memReq);
+
+		VkMemoryAllocateInfo mallocInfo{};
+		mallocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		mallocInfo.allocationSize = memReq.size;
+		mallocInfo.memoryTypeIndex = FindMemType(memReq.memoryTypeBits, props);
+
+		if (vkAllocateMemory(m_Device, &mallocInfo, nullptr, &imgMem) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create image memory!");
+
+		vkBindImageMemory(m_Device, img, imgMem, 0);	
+	}
+
+	void App::TransitionImgLayout(
+		  VkImage img, VkFormat format, VkImageLayout oldLayout
+		, VkImageLayout newLayout) {
+
+		VkCommandBuffer cmdBuffer = BeginSTCommands();
+
+		VkImageMemoryBarrier memBarrier{};
+		memBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		memBarrier.oldLayout = oldLayout;
+		memBarrier.newLayout = newLayout;
+		memBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		memBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		memBarrier.image = img;
+		memBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		memBarrier.subresourceRange.baseMipLevel = 0;
+		memBarrier.subresourceRange.levelCount = 1;
+		memBarrier.subresourceRange.baseArrayLayer = 0;
+		memBarrier.subresourceRange.layerCount = 1;
+
+		VkPipelineStageFlags srcStageFlags, dstStageFlags;
+
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+			memBarrier.srcAccessMask = 0;
+			memBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			dstStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+			memBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			memBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			srcStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			dstStageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		}
+		else {
+			throw std::invalid_argument("Unsupported layout transition!");
+		}
+
+		vkCmdPipelineBarrier(
+			  cmdBuffer
+			, srcStageFlags
+			, dstStageFlags
+			, 0, 0
+			, nullptr, 0
+			, nullptr, 1
+			, &memBarrier
+		);
+
+		EndSTCommands(cmdBuffer);
+	}
+
+	VkCommandBuffer App::BeginSTCommands() {
+		VkCommandBufferAllocateInfo mallocInfo{};
+
+		mallocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		mallocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		mallocInfo.commandPool = m_ComandPool;
+		mallocInfo.commandBufferCount = 1;
+
+		VkCommandBuffer cmdBuffer;
+		vkAllocateCommandBuffers(m_Device, &mallocInfo, &cmdBuffer);
+
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		vkBeginCommandBuffer(cmdBuffer, &beginInfo);
+
+		return cmdBuffer;
+	}
+
+	void App::EndSTCommands(VkCommandBuffer cmdBuffer) {
+		vkEndCommandBuffer(cmdBuffer);
+
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &cmdBuffer;
+
+		vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(m_GraphicsQueue);
+
+		vkFreeCommandBuffers(m_Device, m_ComandPool, 1, &cmdBuffer);
+	}
+
 	void App::CreateVertexBuffers() {
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 		
@@ -680,10 +870,7 @@ namespace Render {
 			, m_VertexBufferMem
 		);
 
-		CopyBuffer(
-			  m_Device, m_ComandPool, m_GraphicsQueue
-			, stagingBuffer, m_VertexBuffer, bufferSize
-		);
+		CopyBuffer(stagingBuffer, m_VertexBuffer, bufferSize);
 
 		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
 		vkFreeMemory(m_Device, stagingBufferMem, nullptr);
@@ -718,10 +905,7 @@ namespace Render {
 			, m_IndexBufferMem
 		);
 
-		CopyBuffer(
-			  m_Device, m_ComandPool, m_GraphicsQueue
-			, stagingBuffer, m_IndexBuffer, bufferSize
-		);
+		CopyBuffer(stagingBuffer, m_IndexBuffer, bufferSize);
 
 		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
 		vkFreeMemory(m_Device, stagingBufferMem, nullptr);
@@ -775,46 +959,41 @@ namespace Render {
 		vkBindBufferMemory(device, buffer, bufferMem, 0);
 	}
 
-	void App::CopyBuffer(
-		  VkDevice& device
-		, VkCommandPool& commandPool
-		, VkQueue& graphicsQueue
-		, VkBuffer fromBuffer
-		, VkBuffer toBuffer
-		, VkDeviceSize size) {
-
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = m_ComandPool;
-		allocInfo.commandBufferCount = 1;
-
-		VkCommandBuffer commBuffer;
-		vkAllocateCommandBuffers(device, &allocInfo, &commBuffer);
-
-		VkCommandBufferBeginInfo commBeginInfo{};
-		commBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		commBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		vkBeginCommandBuffer(commBuffer, &commBeginInfo);
+	void App::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+		VkCommandBuffer cmdBuffer = BeginSTCommands();
 
 		VkBufferCopy bufferCopy{};
 		bufferCopy.size = size;
 		bufferCopy.srcOffset = 0;
 		bufferCopy.dstOffset = 0;
-		vkCmdCopyBuffer(commBuffer, fromBuffer, toBuffer, 1, &bufferCopy);
+		vkCmdCopyBuffer(cmdBuffer, srcBuffer, dstBuffer, 1, &bufferCopy);
 
-		vkEndCommandBuffer(commBuffer);
+		EndSTCommands(cmdBuffer);
+	}
 
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commBuffer;
+	void App::CopyBufferToImg(VkBuffer buffer, VkImage img, uint32_t width, uint32_t height) {
+		VkCommandBuffer cmdBuffer = BeginSTCommands();
 
-		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(graphicsQueue);
+		VkBufferImageCopy imgRegion{};
+		imgRegion.bufferOffset = 0;
+		imgRegion.bufferRowLength = 0;
+		imgRegion.bufferImageHeight = 0;
 
-		vkFreeCommandBuffers(device, commandPool, 1, &commBuffer);
+		imgRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		imgRegion.imageSubresource.mipLevel = 0;
+		imgRegion.imageSubresource.baseArrayLayer = 0;
+		imgRegion.imageSubresource.layerCount = 1;
+		
+		imgRegion.imageOffset = { 0, 0, 0 };
+		imgRegion.imageExtent = { width, height, 1 };
+
+		vkCmdCopyBufferToImage(
+			  cmdBuffer, buffer, img
+			, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+			, 1, &imgRegion
+		);
+
+		EndSTCommands(cmdBuffer);
 	}
 
 	void App::CreateDescriptorPool() {

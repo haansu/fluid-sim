@@ -64,8 +64,4 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Shaders\shader.vert" />
-    <None Include="src\Shaders\shader.frag" />
-  </ItemGroup>
 </Project>
