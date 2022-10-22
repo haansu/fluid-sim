@@ -80,7 +80,8 @@ IF EXIST $(SolutionDir)shaders\bin\ (xcopy /Q /E /Y /I $(SolutionDir)shaders\bin
 IF EXIST $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders\ (xcopy /Q /E /Y /I $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders ..\bin\Debug-x86_64\App\shaders &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders ..\bin\Debug-x86_64\App\shaders &gt; nul)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll ..\bin\Debug-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll ..\bin\Debug-x86_64\App &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll ..\bin\Debug-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll ..\bin\Debug-x86_64\App &gt; nul)
+IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\bin\Debug-x86_64\App\textures &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\textures ..\bin\Debug-x86_64\App\textures &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -113,7 +114,8 @@ IF EXIST $(SolutionDir)shaders\bin\ (xcopy /Q /E /Y /I $(SolutionDir)shaders\bin
 IF EXIST $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders\ (xcopy /Q /E /Y /I $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders ..\bin\Release-x86_64\App\shaders &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders ..\bin\Release-x86_64\App\shaders &gt; nul)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll ..\bin\Release-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll ..\bin\Release-x86_64\App &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll ..\bin\Release-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll ..\bin\Release-x86_64\App &gt; nul)
+IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\bin\Release-x86_64\App\textures &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\textures ..\bin\Release-x86_64\App\textures &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -139,10 +141,6 @@ IF EXIST $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders\ (xcopy /Q /E /
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Shaders\shader.frag" />
-    <None Include="src\Shaders\shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

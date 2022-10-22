@@ -182,7 +182,8 @@ project "Render-Engine"
 		}
 
 		postbuildcommands {
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/App")
+			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/App"),
+			("{COPY} $(SolutionDir)/textures ../bin/" .. outputdir .. "/App/textures")
 		}
 
 		defines {

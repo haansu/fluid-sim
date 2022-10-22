@@ -55,12 +55,34 @@ namespace Render {
 		void CreateFrameBuffers();
 		void CreateCommandPool();
 		void CreateCommandBuffers();
+
+		void CreateTextureImage();
+
 		void CreateVertexBuffers();
 		void CreateIndexBuffer();
 		void CreateUniformBuffers();
 		void CreateDescriptorPool();
 		void CreateDescriptorSets();
 		void CreateSyncObjects();
+
+		void CreateImage(
+			  uint32_t width
+			, uint32_t height
+			, VkFormat format
+			, VkImageTiling tiling
+			, VkImageUsageFlags usgFlags
+			, VkMemoryPropertyFlags props
+			, VkImage& img
+			, VkDeviceMemory& imgMem
+		);
+
+		void TransitionImgLayout(
+			  VkImage img, VkFormat format
+			, VkImageLayout oldLayout, VkImageLayout newLayout
+		);
+
+		VkCommandBuffer BeginSTCommands();
+		void EndSTCommands(VkCommandBuffer cmdBuffer);
 
 		void CreateBuffer(
 			  VkDevice& device
@@ -71,14 +93,8 @@ namespace Render {
 			, VkDeviceMemory& bufferMem
 		);
 
-		void CopyBuffer(
-			  VkDevice& device
-			, VkCommandPool& commandPool
-			, VkQueue& graphicsQueue
-			, VkBuffer fromBuffer
-			, VkBuffer toBuffer
-			, VkDeviceSize size
-		);
+		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+		void CopyBufferToImg(VkBuffer buffer, VkImage img, uint32_t width, uint32_t height);
 
 		void CleanupSwapChain();
 		void RecreateSwapChain();
@@ -134,6 +150,9 @@ namespace Render {
 		VkBuffer m_IndexBuffer;
 		VkDeviceMemory m_VertexBufferMem;
 		VkDeviceMemory m_IndexBufferMem;
+
+		VkImage m_TextureImg;
+		VkDeviceMemory m_TextureImgMem;
 
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBuffersMem;
