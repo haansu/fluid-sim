@@ -48,7 +48,10 @@ namespace Render {
 		void CreateLogicalDevice();
 		void CreateSurface();
 		void CreateSwapChain();
+
+		[[nodiscard]] VkImageView CreateImageView(VkImage img, VkFormat format);
 		void CreateImageViews();
+		
 		void CreateRenderPass();
 		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline();
@@ -57,6 +60,8 @@ namespace Render {
 		void CreateCommandBuffers();
 
 		void CreateTextureImage();
+		void CreateTextureImageView();
+		void CreateTextureSampler();
 
 		void CreateVertexBuffers();
 		void CreateIndexBuffer();
@@ -81,7 +86,7 @@ namespace Render {
 			, VkImageLayout oldLayout, VkImageLayout newLayout
 		);
 
-		VkCommandBuffer BeginSTCommands();
+		[[nodiscard]] VkCommandBuffer BeginSTCommands();
 		void EndSTCommands(VkCommandBuffer cmdBuffer);
 
 		void CreateBuffer(
@@ -106,7 +111,7 @@ namespace Render {
 
 		uint32_t FindMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties);
 
-		VkShaderModule CreateShaderModule(const std::vector<char>& code);
+		[[nodiscard]] VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -133,7 +138,7 @@ namespace Render {
 		VkFormat m_SwapChainImageFormat;
 		VkExtent2D m_SwapChainExtent;
 
-		std::vector<VkImage> m_SwapChainImages;
+		std::vector<VkImage> m_SwapChainImgs;
 		std::vector<VkImageView> m_SwapChainImageViews;
 		std::vector<VkFramebuffer> m_Framebuffers;
 
@@ -153,6 +158,7 @@ namespace Render {
 
 		VkImage m_TextureImg;
 		VkDeviceMemory m_TextureImgMem;
+		VkImageView m_TextureImgView;
 
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBuffersMem;
