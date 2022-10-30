@@ -66,6 +66,7 @@ namespace Render {
 
 		CreateTextureImage();
 		CreateTextureImageView();
+		CreateTextureSampler();
 		
 		CreateVertexBuffers();
 		CreateIndexBuffer();
@@ -91,7 +92,8 @@ namespace Render {
 
 	void App::Cleanup() {
 		CleanupSwapChain();
-
+		
+		vkDestroySampler(m_Device, m_TextureSampler, nullptr);
 		vkDestroyImageView(m_Device, m_TextureImgView, nullptr);
 
 		vkDestroyImage(m_Device, m_TextureImg, nullptr);
@@ -287,7 +289,10 @@ namespace Render {
 			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
-		return indices.IsComplete();
+		VkPhysicalDeviceFeatures supFeatures;
+		vkGetPhysicalDeviceFeatures(device, &supFeatures);
+
+		return indices.IsComplete() && extsSupported && swapChainAdequate && supFeatures.samplerAnisotropy;
 	}
 
 	QFamilyInd App::FindQFamilies(VkPhysicalDevice device) {
@@ -338,6 +343,7 @@ namespace Render {
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures{};
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
 		VkDeviceCreateInfo createInfo{};
 
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -728,6 +734,34 @@ namespace Render {
 
 	void App::CreateTextureImageView() {
 		m_TextureImgView = CreateImageView(m_TextureImg, VK_FORMAT_R8G8B8A8_SRGB);
+	}
+
+	void App::CreateTextureSampler() {
+		VkSamplerCreateInfo samplerCreateInfo{};
+		samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+		samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+		samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerCreateInfo.anisotropyEnable = VK_FALSE;
+		samplerCreateInfo.maxAnisotropy = 1.0f;
+		
+		VkPhysicalDeviceProperties props{};
+		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &props);
+
+		samplerCreateInfo.maxAnisotropy = props.limits.maxSamplerAnisotropy;
+		samplerCreateInfo.borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+		samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+		samplerCreateInfo.compareEnable = VK_FALSE;
+		samplerCreateInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerCreateInfo.mipLodBias = 0.0f;
+		samplerCreateInfo.minLod = 0.0f;
+		samplerCreateInfo.maxLod = 0.0f;
+
+		if (vkCreateSampler(m_Device, &samplerCreateInfo, nullptr, &m_TextureSampler) != VK_SUCCESS)
+			throw std::runtime_error("Failed to create texture sampler!");
 	}
 
 	void App::CreateImage(
