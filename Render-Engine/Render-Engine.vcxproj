@@ -142,6 +142,10 @@ IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Shaders\shader.frag" />
+    <None Include="src\Shaders\shader.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
