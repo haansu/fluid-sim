@@ -159,6 +159,7 @@ namespace Render {
 		VkImage m_TextureImg;
 		VkDeviceMemory m_TextureImgMem;
 		VkImageView m_TextureImgView;
+		VkSampler m_TextureSampler;
 
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBuffersMem;
