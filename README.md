@@ -1,5 +1,4 @@
 # Waterfall - Fluid Simulator
 
-For now just a graphics engine that will have fluid simulation capabiliteis.
-
+Textured - 2 triangle surface:
 ![alt text](https://drive.google.com/uc?export=download&id=1y0F4LRSf-Bn8hVQqkCemAuOVpV0eQQAt)
