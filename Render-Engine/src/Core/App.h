@@ -121,7 +121,7 @@ namespace Render {
 		void CleanupSwapChain();
 		void RecreateSwapChain();
 
-		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index);
+		void RecCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index);
 
 		void DrawFrame();
 		void UpdateUniformBuffer(uint32_t currentFrame);
@@ -138,7 +138,7 @@ namespace Render {
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 
 	private_var:
-		static const uint8_t s_MaxFramesInFlight = 2;
+		static const uint8_t s_MaxFramesInFlight = 8;
 		uint32_t m_CurrentFrame = 0;
 
 		Window* m_PWindow;

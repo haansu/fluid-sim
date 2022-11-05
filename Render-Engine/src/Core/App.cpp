@@ -52,7 +52,9 @@ namespace Render {
 	void App::Init() {
 		InitObjects();
 		CreateInstance();
+		
 		SetupDebugMsgr();
+
 		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
@@ -61,10 +63,10 @@ namespace Render {
 		CreateRenderPass();
 		CreateDescriptorSetLayout();
 		CreateGraphicsPipeline();
-		CreateFrameBuffers();
 		CreateCommandPool();
-
+		
 		CreateDepthRes();
+		CreateFrameBuffers();
 
 		CreateTextureImage();
 		CreateTextureImageView();
@@ -462,38 +464,59 @@ namespace Render {
 
 	void App::CreateRenderPass() {
 		VkAttachmentDescription colorAttach{};
-		colorAttach.format = m_SwapChainImageFormat;
-		colorAttach.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttach.format				= m_SwapChainImageFormat;
+		colorAttach.samples				= VK_SAMPLE_COUNT_1_BIT;
 
 		// The data in the attachment will be cleared before a render pass and store after
-		colorAttach.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttach.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		
-		// Stencil buffer related, because we don't use the stencil buffer
-		// we don't care about this for now
-		colorAttach.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttach.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttach.loadOp				= VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttach.storeOp				= VK_ATTACHMENT_STORE_OP_STORE;
 		
 		// Image layout is initialized as undefined because we don't care about
 		// the previous layout because the image is cleared anyway
-		colorAttach.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttach.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		colorAttach.initialLayout		= VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttach.finalLayout			= VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 		VkAttachmentReference colorAttachRef{};
-		colorAttachRef.attachment = 0;
-		colorAttachRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		colorAttachRef.attachment		= 0;
+		colorAttachRef.layout			= VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentDescription depthAttach{};
+		depthAttach.format				= GetSupportedDepthFormat();
+		depthAttach.samples				= VK_SAMPLE_COUNT_1_BIT;
+		depthAttach.loadOp				= VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttach.storeOp				= VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttach.stencilLoadOp		= VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttach.stencilStoreOp		= VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttach.initialLayout		= VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttach.finalLayout			= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentReference depthAttachRef{};
+		depthAttachRef.attachment		= 1;
+		depthAttachRef.layout			= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDependency dep{};
+		dep.srcSubpass					= VK_SUBPASS_EXTERNAL;
+		dep.dstSubpass					= 0;
+		dep.srcStageMask				= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dep.srcAccessMask				= 0;
+		dep.dstStageMask				= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dep.dstAccessMask				= VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 		VkSubpassDescription subpass{};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachRef;
+		subpass.pipelineBindPoint		= VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount	= 1;
+		subpass.pColorAttachments		= &colorAttachRef;
+		subpass.pDepthStencilAttachment = &depthAttachRef;
 
+		std::array<VkAttachmentDescription, 2> attachs = { colorAttach, depthAttach };
 		VkRenderPassCreateInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 1;
-		renderPassInfo.pAttachments = &colorAttach;
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
+		renderPassInfo.sType			= VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount	= static_cast<uint32_t>(attachs.size());
+		renderPassInfo.pAttachments		= attachs.data();
+		renderPassInfo.subpassCount		= 1;
+		renderPassInfo.pSubpasses		= &subpass;
+		renderPassInfo.dependencyCount	= 1;
+		renderPassInfo.pDependencies	= &dep;
 
 		if (vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS)
 			throw std::runtime_error("Failed to create render pass!");
@@ -615,6 +638,18 @@ namespace Render {
 		pipelineLayoutInfo.pSetLayouts = &m_DescSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 
+		VkPipelineDepthStencilStateCreateInfo depthStencil{};
+		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthStencil.depthTestEnable = VK_TRUE;
+		depthStencil.depthWriteEnable = VK_TRUE;
+		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+		depthStencil.depthBoundsTestEnable = VK_FALSE;
+		depthStencil.stencilTestEnable = VK_FALSE;
+		depthStencil.front = {};
+		depthStencil.back = {};
+		depthStencil.minDepthBounds = 0.0f;
+		depthStencil.maxDepthBounds = 1.0f;
+
 		if (vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
 			throw std::runtime_error("Failed to create pipeline layout!");
 
@@ -627,7 +662,7 @@ namespace Render {
 		pipelineInfo.pViewportState = &viewportStateInfo;
 		pipelineInfo.pRasterizationState = &rasterizerInfo;
 		pipelineInfo.pMultisampleState = &multisamplingInfo;
-		pipelineInfo.pDepthStencilState = nullptr;
+		pipelineInfo.pDepthStencilState = &depthStencil;
 		pipelineInfo.pColorBlendState = &colorBlendingInfo;
 		pipelineInfo.pDynamicState = &dynamicStateInfo;
 		pipelineInfo.layout = m_PipelineLayout;
@@ -646,12 +681,12 @@ namespace Render {
 	void App::CreateFrameBuffers() {
 		m_Framebuffers.resize(m_SwapChainImageViews.size());
 		for (size_t i = 0; i < m_SwapChainImageViews.size(); i++) {
-			VkImageView attachments[] = { m_SwapChainImageViews[i] };
+			VkImageView attachments[] = { m_SwapChainImageViews[i], m_DepthImgView };
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 			framebufferInfo.renderPass = m_RenderPass;
-			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.attachmentCount = 2;
 			framebufferInfo.pAttachments = attachments;
 			framebufferInfo.width = m_SwapChainExtent.width;
 			framebufferInfo.height = m_SwapChainExtent.height;
@@ -1207,6 +1242,10 @@ namespace Render {
 	}
 
 	void App::CleanupSwapChain() {
+		vkDestroyImageView(m_Device, m_DepthImgView, nullptr);
+		vkDestroyImage(m_Device, m_DepthImg, nullptr);
+		vkFreeMemory(m_Device, m_DepthImgMem, nullptr);
+
 		for (size_t i = 0; i < m_Framebuffers.size(); i++)
 			vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
 
@@ -1218,8 +1257,7 @@ namespace Render {
 
 	void App::RecreateSwapChain() {
 		int width = 0, height = 0;
-		glfwGetFramebufferSize(m_PWindow->GetGLFWwindowPointer(), &width, &height);
-
+		
 		while (!width && !height) {
 			glfwGetFramebufferSize(m_PWindow->GetGLFWwindowPointer(), &width, &height);
 			glfwWaitEvents();
@@ -1231,22 +1269,30 @@ namespace Render {
 
 		CreateSwapChain();
 		CreateImageViews();
+		CreateDepthRes();
 		CreateFrameBuffers();
 	}
 
-	void App::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index) {
+	void App::RecCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index) {
 		VkCommandBufferBeginInfo commandBufferBeginInfo{};
 		commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
 		if (vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
 			throw std::runtime_error("Failed to begin recording command buffer!");
-	
+		
 		VkRenderPassBeginInfo renderPassBeginInfo{};
 		renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassBeginInfo.renderPass = m_RenderPass;
 		renderPassBeginInfo.framebuffer = m_Framebuffers[index];
 		renderPassBeginInfo.renderArea.offset = { 0, 0 };
 		renderPassBeginInfo.renderArea.extent = m_SwapChainExtent;
+
+		std::array<VkClearValue, 2> clearVals{};
+		clearVals[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+		clearVals[1].depthStencil = { 1.0f, 0 };
+
+		renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearVals.size());
+		renderPassBeginInfo.pClearValues = clearVals.data();
 
 		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		renderPassBeginInfo.clearValueCount = 1;
@@ -1304,7 +1350,7 @@ namespace Render {
 
 		vkResetFences(m_Device, 1, &m_IFFences[m_CurrentFrame]);
 
-		RecordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
+		RecCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
 
 		UpdateUniformBuffer(m_CurrentFrame);
 
