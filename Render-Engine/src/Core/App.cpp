@@ -265,7 +265,7 @@ namespace Render {
 		vkEnumeratePhysicalDevices(m_VkInstance, &deviceCount, nullptr);
 
 		if (deviceCount == 0)
-			throw std::runtime_error("Failed to Get GPUs with Vulkan support!");
+			throw std::runtime_error("Failed to get GPUs with Vulkan support!");
 
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkEnumeratePhysicalDevices(m_VkInstance, &deviceCount, devices.data());
@@ -277,7 +277,7 @@ namespace Render {
 			}
 
 		if (m_PhysicalDevice == VK_NULL_HANDLE)
-			throw std::runtime_error("Failed to Get suitable GPU!");
+			throw std::runtime_error("Failed to get suitable GPU!");
 	}
 
 	bool App::IsDeviceSuitable(VkPhysicalDevice device) {
@@ -702,6 +702,12 @@ namespace Render {
 		);
 
 		m_DepthImgView = CreateImageView(m_DepthImg, depthForm, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+		TransitionImgLayout(
+			  m_DepthImg, depthForm
+			, VK_IMAGE_LAYOUT_UNDEFINED
+			, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+		);
 	}
 
 	[[nodiscard]] VkFormat App::GetSupportedDepthFormat() {
@@ -727,7 +733,7 @@ namespace Render {
 				return elem;
 		}
 
-		throw std::runtime_error("Failed to Get supported format!");
+		throw std::runtime_error("Failed to get supported format!");
 	}
 
 	[[nodiscard]] bool App::HasStencil(VkFormat format) {
@@ -897,8 +903,24 @@ namespace Render {
 			srcStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			dstStageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+			memBarrier.srcAccessMask = 0;
+			memBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			dstStageFlags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		}		
 		else {
 			throw std::invalid_argument("Unsupported layout transition!");
+		}
+
+		if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+			memBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+			if (HasStencil(format))
+				memBarrier.subresourceRange.aspectMask = memBarrier.subresourceRange.aspectMask | VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+		else {
+			memBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		}
 
 		vkCmdPipelineBarrier(
@@ -1365,7 +1387,7 @@ namespace Render {
 			if ((memTypeFilter & (1 << i)) && (memProps.memoryTypes[i].propertyFlags & properties) == properties)
 				return i;
 
-		throw std::runtime_error("Failed to Get memory type");
+		throw std::runtime_error("Failed to get memory type");
 	}
 
 	[[nodiscard]] VkShaderModule App::CreateShaderModule(const std::vector<char>& code) {
