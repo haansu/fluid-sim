@@ -64,6 +64,8 @@ namespace Render {
 		CreateFrameBuffers();
 		CreateCommandPool();
 
+		CreateDepthRes();
+
 		CreateTextureImage();
 		CreateTextureImageView();
 		CreateTextureSampler();
@@ -263,7 +265,7 @@ namespace Render {
 		vkEnumeratePhysicalDevices(m_VkInstance, &deviceCount, nullptr);
 
 		if (deviceCount == 0)
-			throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+			throw std::runtime_error("Failed to Get GPUs with Vulkan support!");
 
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkEnumeratePhysicalDevices(m_VkInstance, &deviceCount, devices.data());
@@ -275,11 +277,11 @@ namespace Render {
 			}
 
 		if (m_PhysicalDevice == VK_NULL_HANDLE)
-			throw std::runtime_error("Failed to find suitable GPU!");
+			throw std::runtime_error("Failed to Get suitable GPU!");
 	}
 
 	bool App::IsDeviceSuitable(VkPhysicalDevice device) {
-		QFamilyInd indices = FindQFamilies(device);
+		QFamilyInd indices = GetQFamilies(device);
 
 		bool extsSupported = CheckDeviceExtSupport(device);
 		bool swapChainAdequate = false;
@@ -295,7 +297,7 @@ namespace Render {
 		return indices.IsComplete() && extsSupported && swapChainAdequate && supFeatures.samplerAnisotropy;
 	}
 
-	QFamilyInd App::FindQFamilies(VkPhysicalDevice device) {
+	QFamilyInd App::GetQFamilies(VkPhysicalDevice device) {
 		QFamilyInd ind;
 
 		uint32_t qFamilyCount = 0;
@@ -326,7 +328,7 @@ namespace Render {
 	}
 
 	void App::CreateLogicalDevice() {
-		QFamilyInd ind = FindQFamilies(m_PhysicalDevice);
+		QFamilyInd ind = GetQFamilies(m_PhysicalDevice);
 
 		std::vector<VkDeviceQueueCreateInfo> qCreateInfos;
 		std::set<uint32_t> uniqueQFams = { ind.graphicsFamily.value(), ind.presentFamily.value() };
@@ -396,7 +398,7 @@ namespace Render {
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		QFamilyInd ind = FindQFamilies(m_PhysicalDevice);
+		QFamilyInd ind = GetQFamilies(m_PhysicalDevice);
 		uint32_t qFamilyInds[] = { ind.graphicsFamily.value(), ind.presentFamily.value() };
 
 		if (ind.graphicsFamily != ind.presentFamily) {
@@ -426,7 +428,7 @@ namespace Render {
 		m_SwapChainExtent = extent;
 	}
 
-	[[nodiscard]] VkImageView App::CreateImageView(VkImage img, VkFormat format) {
+	[[nodiscard]] VkImageView App::CreateImageView(VkImage img, VkFormat format, VkImageAspectFlags aspFlags) {
 		VkImageViewCreateInfo imgViewInfo{};
 		imgViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		imgViewInfo.image = img;
@@ -438,7 +440,7 @@ namespace Render {
 		imgViewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
 		imgViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 
-		imgViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		imgViewInfo.subresourceRange.aspectMask = aspFlags;
 		imgViewInfo.subresourceRange.baseMipLevel = 0;
 		imgViewInfo.subresourceRange.levelCount = 1;
 		imgViewInfo.subresourceRange.baseArrayLayer = 0;
@@ -455,7 +457,7 @@ namespace Render {
 		m_SwapChainImageViews.resize(m_SwapChainImgs.size());
 
 		for (size_t i = 0; i < m_SwapChainImgs.size(); i++)
-			m_SwapChainImageViews[i] = CreateImageView(m_SwapChainImgs[i], m_SwapChainImageFormat);
+			m_SwapChainImageViews[i] = CreateImageView(m_SwapChainImgs[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 
 	void App::CreateRenderPass() {
@@ -661,7 +663,7 @@ namespace Render {
 	}
 
 	void App::CreateCommandPool() {
-		QFamilyInd qFamInds = FindQFamilies(m_PhysicalDevice);
+		QFamilyInd qFamInds = GetQFamilies(m_PhysicalDevice);
 
 		VkCommandPoolCreateInfo commandPoolInfo{};
 		commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -683,6 +685,54 @@ namespace Render {
 
 		if (vkAllocateCommandBuffers(m_Device, &commandBufferAllocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
 			throw std::runtime_error("Failed to allocate command buffers!");
+	}
+
+	void App::CreateDepthRes() {
+		VkFormat depthForm = GetSupportedDepthFormat();
+
+		CreateImage(
+			  m_SwapChainExtent.width
+			, m_SwapChainExtent.height
+			, depthForm
+			, VK_IMAGE_TILING_OPTIMAL
+			, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+			, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+			, m_DepthImg
+			, m_DepthImgMem
+		);
+
+		m_DepthImgView = CreateImageView(m_DepthImg, depthForm, VK_IMAGE_ASPECT_DEPTH_BIT);
+	}
+
+	[[nodiscard]] VkFormat App::GetSupportedDepthFormat() {
+		return GetSupportedFormat(
+			  { VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT }
+			, VK_IMAGE_TILING_OPTIMAL
+			, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+		);
+	}
+
+	[[nodiscard]] VkFormat App::GetSupportedFormat(
+		  const std::vector<VkFormat>& formats
+		, VkImageTiling tiling
+		, VkFormatFeatureFlags features) {
+
+		for (VkFormat elem : formats) {
+			VkFormatProperties props;
+			vkGetPhysicalDeviceFormatProperties(m_PhysicalDevice, elem, &props);
+
+			if ((props.linearTilingFeatures & features) == features && tiling == VK_IMAGE_TILING_LINEAR)
+				return elem;
+			else if ((props.optimalTilingFeatures & features) == features && tiling == VK_IMAGE_TILING_OPTIMAL)
+				return elem;
+		}
+
+		throw std::runtime_error("Failed to Get supported format!");
+	}
+
+	[[nodiscard]] bool App::HasStencil(VkFormat format) {
+		// Revisit
+		return format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D32_SFLOAT_S8_UINT;
 	}
 
 	void App::CreateTextureImage() {
@@ -742,7 +792,7 @@ namespace Render {
 	}
 
 	void App::CreateTextureImageView() {
-		m_TextureImgView = CreateImageView(m_TextureImg, VK_FORMAT_R8G8B8A8_SRGB);
+		m_TextureImgView = CreateImageView(m_TextureImg, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 
 	void App::CreateTextureSampler() {
@@ -806,7 +856,7 @@ namespace Render {
 		VkMemoryAllocateInfo mallocInfo{};
 		mallocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		mallocInfo.allocationSize = memReq.size;
-		mallocInfo.memoryTypeIndex = FindMemType(memReq.memoryTypeBits, props);
+		mallocInfo.memoryTypeIndex = GetMemType(memReq.memoryTypeBits, props);
 
 		if (vkAllocateMemory(m_Device, &mallocInfo, nullptr, &imgMem) != VK_SUCCESS)
 			throw std::runtime_error("Failed to create image memory!");
@@ -1008,7 +1058,7 @@ namespace Render {
 		VkMemoryAllocateInfo mallocInfo{};
 		mallocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		mallocInfo.allocationSize = bufferMemReq.size;
-		mallocInfo.memoryTypeIndex = FindMemType(bufferMemReq.memoryTypeBits, props);
+		mallocInfo.memoryTypeIndex = GetMemType(bufferMemReq.memoryTypeBits, props);
 
 		if (vkAllocateMemory(device, &mallocInfo, nullptr, &bufferMem) != VK_SUCCESS)
 			throw std::runtime_error("Failed to allocate memory for the vertex buffer!");
@@ -1294,7 +1344,7 @@ namespace Render {
 		);
 
 		uniBuff.proj = glm::perspective(
-			  glm::radians(45.0f)
+			  glm::radians(60.0f)
 			, (float) m_SwapChainExtent.width / (float) m_SwapChainExtent.height
 			,  0.1f, 10.0f
 		);
@@ -1307,7 +1357,7 @@ namespace Render {
 		vkUnmapMemory(m_Device, m_UniformBuffersMem[currentFrame]);
 	}
 
-	uint32_t App::FindMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties) {
+	uint32_t App::GetMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties) {
 		VkPhysicalDeviceMemoryProperties memProps;
 		vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProps);
 	
@@ -1315,7 +1365,7 @@ namespace Render {
 			if ((memTypeFilter & (1 << i)) && (memProps.memoryTypes[i].propertyFlags & properties) == properties)
 				return i;
 
-		throw std::runtime_error("Failed to find memory type");
+		throw std::runtime_error("Failed to Get memory type");
 	}
 
 	[[nodiscard]] VkShaderModule App::CreateShaderModule(const std::vector<char>& code) {

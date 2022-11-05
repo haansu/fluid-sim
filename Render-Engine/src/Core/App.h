@@ -43,13 +43,18 @@ namespace Render {
 
 		void PickPhysicalDevice();
 		bool IsDeviceSuitable(VkPhysicalDevice device);
-		QFamilyInd FindQFamilies(VkPhysicalDevice device);
+		QFamilyInd GetQFamilies(VkPhysicalDevice device);
 
 		void CreateLogicalDevice();
 		void CreateSurface();
 		void CreateSwapChain();
 
-		[[nodiscard]] VkImageView CreateImageView(VkImage img, VkFormat format);
+		[[nodiscard]] VkImageView CreateImageView(
+			  VkImage img
+			, VkFormat format
+			, VkImageAspectFlags aspFlags
+		);
+
 		void CreateImageViews();
 		
 		void CreateRenderPass();
@@ -58,6 +63,18 @@ namespace Render {
 		void CreateFrameBuffers();
 		void CreateCommandPool();
 		void CreateCommandBuffers();
+
+		void CreateDepthRes();
+
+		[[nodiscard]] VkFormat GetSupportedDepthFormat();
+		
+		[[nodiscard]] VkFormat GetSupportedFormat(
+			  const std::vector<VkFormat>& formats
+			, VkImageTiling tiling
+			, VkFormatFeatureFlags features
+		);
+
+		[[nodiscard]] bool HasStencil(VkFormat format);
 
 		void CreateTextureImage();
 		void CreateTextureImageView();
@@ -109,7 +126,7 @@ namespace Render {
 		void DrawFrame();
 		void UpdateUniformBuffer(uint32_t currentFrame);
 
-		uint32_t FindMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties);
+		uint32_t GetMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties);
 
 		[[nodiscard]] VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
@@ -160,6 +177,10 @@ namespace Render {
 		VkDeviceMemory m_TextureImgMem;
 		VkImageView m_TextureImgView;
 		VkSampler m_TextureSampler;
+
+		VkImage m_DepthImg;
+		VkDeviceMemory m_DepthImgMem;
+		VkImageView m_DepthImgView;
 
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBuffersMem;
