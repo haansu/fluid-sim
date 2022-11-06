@@ -138,7 +138,7 @@ namespace Render {
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 
 	private_var:
-		static const uint8_t s_MaxFramesInFlight = 8;
+		static const uint8_t s_MaxFramesInFlight = 2;
 		uint32_t m_CurrentFrame = 0;
 
 		Window* m_PWindow;

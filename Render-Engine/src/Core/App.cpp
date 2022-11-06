@@ -681,13 +681,13 @@ namespace Render {
 	void App::CreateFrameBuffers() {
 		m_Framebuffers.resize(m_SwapChainImageViews.size());
 		for (size_t i = 0; i < m_SwapChainImageViews.size(); i++) {
-			VkImageView attachments[] = { m_SwapChainImageViews[i], m_DepthImgView };
+			std::array<VkImageView, 2> attachs = { m_SwapChainImageViews[i], m_DepthImgView };
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 			framebufferInfo.renderPass = m_RenderPass;
-			framebufferInfo.attachmentCount = 2;
-			framebufferInfo.pAttachments = attachments;
+			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachs.size());
+			framebufferInfo.pAttachments = attachs.data();
 			framebufferInfo.width = m_SwapChainExtent.width;
 			framebufferInfo.height = m_SwapChainExtent.height;
 			framebufferInfo.layers = 1;
@@ -943,7 +943,7 @@ namespace Render {
 			memBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 			srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			dstStageFlags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		}		
+		}
 		else {
 			throw std::invalid_argument("Unsupported layout transition!");
 		}
@@ -1279,7 +1279,7 @@ namespace Render {
 
 		if (vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
 			throw std::runtime_error("Failed to begin recording command buffer!");
-		
+
 		VkRenderPassBeginInfo renderPassBeginInfo{};
 		renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassBeginInfo.renderPass = m_RenderPass;
@@ -1294,22 +1294,17 @@ namespace Render {
 		renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearVals.size());
 		renderPassBeginInfo.pClearValues = clearVals.data();
 
-		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-		renderPassBeginInfo.clearValueCount = 1;
-		renderPassBeginInfo.pClearValues = &clearColor;
-
-		
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-		
+
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
-		
+
 		VkBuffer vertexBuffers[] = { m_VertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescSets[m_CurrentFrame], 0, nullptr);
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-		
+
 		VkViewport viewPort{};
 		viewPort.x = 0.0f;
 		viewPort.y = 0.0f;
@@ -1319,7 +1314,7 @@ namespace Render {
 		viewPort.maxDepth = 1.0f;
 
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewPort);
-		
+
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChainExtent;
@@ -1329,7 +1324,7 @@ namespace Render {
 		vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffer);
-		
+
 
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 			throw std::runtime_error("Failed to record command buffer!");
@@ -1348,11 +1343,13 @@ namespace Render {
 		else if (res != VK_SUCCESS)
 			throw::std::runtime_error("Failed to acquire swap chain image");
 
+		UpdateUniformBuffer(m_CurrentFrame);
+
 		vkResetFences(m_Device, 1, &m_IFFences[m_CurrentFrame]);
+		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
 
 		RecCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
 
-		UpdateUniformBuffer(m_CurrentFrame);
 
 		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
 		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
@@ -1371,14 +1368,14 @@ namespace Render {
 		if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_IFFences[m_CurrentFrame]) != VK_SUCCESS)
 			throw std::runtime_error("Failed to submit draw command buffer!");
 
-		VkSwapchainKHR swapChains[] = { m_SwapChain };
+		std::array<VkSwapchainKHR, 1> swapChains = { m_SwapChain };
 
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
+		presentInfo.swapchainCount = static_cast<uint32_t>(swapChains.size());
+		presentInfo.pSwapchains = swapChains.data();
 		presentInfo.pImageIndices = &imgInd;
 
 		res = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
