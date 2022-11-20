@@ -20,6 +20,7 @@ LibDir = {}
 IncludeDir["GLFW"] = "vendor/lib/glfw/include"
 IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.216.0/Include"
 IncludeDir["stb"] = "vendor/lib/stb/include"
+IncludeDir["tol"] = "vendor/lib/tol/include"
 
 LibDir["Vulkan"] = "C:/VulkanSDK/1.3.216.0/Lib"
 LibDir["GLFW"] = "vendor/lib/glfw/bin/Debug-x86_64/GLFW"
@@ -155,6 +156,7 @@ project "Render-Engine"
 
 	includedirs {
 		"%{IncludeDir.stb}",
+		"%{IncludeDir.tol}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Vulkan}",
 		"Engine/src"
@@ -183,7 +185,8 @@ project "Render-Engine"
 
 		postbuildcommands {
 			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/App"),
-			("{COPY} $(SolutionDir)/textures ../bin/" .. outputdir .. "/App/textures")
+			("{COPY} $(SolutionDir)/textures ../bin/" .. outputdir .. "/App/textures"),
+			("{COPY} $(SolutionDir)/models ../bin/" .. outputdir .. "/App/models")
 		}
 
 		defines {
