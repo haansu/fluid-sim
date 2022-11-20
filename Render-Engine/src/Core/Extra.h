@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <vulkan/vulkan_core.h>
+#include <optional>
 
 namespace Render {
 
@@ -23,5 +24,18 @@ namespace Render {
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance
 		, VkDebugUtilsMessengerEXT debugMessenger
 		, const VkAllocationCallbacks* pAllocator);
+
+	struct QFamilyInd {
+		std::optional<uint32_t> graphicsFamily;
+		std::optional<uint32_t> presentFamily;
+
+		inline bool IsComplete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
+	};
+
+	struct SwapChainSupportDetails {
+		VkSurfaceCapabilitiesKHR capabilities;
+		std::vector<VkSurfaceFormatKHR> formats;
+		std::vector<VkPresentModeKHR> presentModes;
+	};
 
 }

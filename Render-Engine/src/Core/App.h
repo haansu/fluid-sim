@@ -5,12 +5,14 @@
 #include <vulkan/vulkan_core.h>
 
 #include "../Defs.h"
+#include "Graphics/Vertex.h"
 
 namespace Render {
 
 	// Forward declared local stuff
 
 	class Window;
+	class GDevice;
 
 	struct QFamilyInd;
 	struct SwapChainSupportDetails;
@@ -23,30 +25,7 @@ namespace Render {
 		void Init();
 		void MainLoop();
 		void Cleanup();
-		void CreateInstance();
 
-		void InitObjects();
-
-		void SetupDebugMsgr();
-		void PopulateDebugMsgrCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-		
-		std::vector<const char*> GetReqExtensions();
-
-		bool CheckValLayerSupport();
-
-		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
-			  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
-			, VkDebugUtilsMessageTypeFlagsEXT messageType
-			, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData
-			, void* pUserData
-		);
-
-		void PickPhysicalDevice();
-		bool IsDeviceSuitable(VkPhysicalDevice device);
-		QFamilyInd GetQFamilies(VkPhysicalDevice device);
-
-		void CreateLogicalDevice();
-		void CreateSurface();
 		void CreateSwapChain();
 
 		[[nodiscard]] VkImageView CreateImageView(
@@ -61,18 +40,11 @@ namespace Render {
 		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline();
 		void CreateFrameBuffers();
-		void CreateCommandPool();
 		void CreateCommandBuffers();
 
 		void CreateDepthRes();
 
 		[[nodiscard]] VkFormat GetSupportedDepthFormat();
-		
-		[[nodiscard]] VkFormat GetSupportedFormat(
-			  const std::vector<VkFormat>& formats
-			, VkImageTiling tiling
-			, VkFormatFeatureFlags features
-		);
 
 		[[nodiscard]] bool HasStencil(VkFormat format);
 
@@ -103,9 +75,6 @@ namespace Render {
 			, VkImageLayout oldLayout, VkImageLayout newLayout
 		);
 
-		[[nodiscard]] VkCommandBuffer BeginSTCommands();
-		void EndSTCommands(VkCommandBuffer cmdBuffer);
-
 		void CreateBuffer(
 			  VkDevice& device
 			, VkDeviceSize size
@@ -126,30 +95,24 @@ namespace Render {
 		void DrawFrame();
 		void UpdateUniformBuffer(uint32_t currentFrame);
 
-		uint32_t GetMemType(uint32_t memTypeFilter, VkMemoryPropertyFlags properties);
-
 		[[nodiscard]] VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
-		bool CheckDeviceExtSupport(VkPhysicalDevice device);
-		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+		void ClearVertices();
+
+		void LoadModel(const char* path, bool hasTex = true);
 
 	private_var:
 		static const uint8_t s_MaxFramesInFlight = 2;
 		uint32_t m_CurrentFrame = 0;
 
-		Window* m_PWindow;
+		GDevice* m_Device;
 
 		VkInstance m_VkInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
-
-		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
-		VkDevice m_Device;
-
-		VkSurfaceKHR m_Surface;
 
 		VkSwapchainKHR m_SwapChain;
 		VkFormat m_SwapChainImageFormat;
@@ -168,11 +131,6 @@ namespace Render {
 
 		std::vector<VkDescriptorSet> m_DescSets;
 
-		VkBuffer m_VertexBuffer;
-		VkBuffer m_IndexBuffer;
-		VkDeviceMemory m_VertexBufferMem;
-		VkDeviceMemory m_IndexBufferMem;
-
 		VkImage m_TextureImg;
 		VkDeviceMemory m_TextureImgMem;
 		VkImageView m_TextureImgView;
@@ -185,15 +143,21 @@ namespace Render {
 		std::vector<VkBuffer> m_UniformBuffers;
 		std::vector<VkDeviceMemory> m_UniformBuffersMem;
 
-		VkCommandPool m_ComandPool;
 		std::vector<VkCommandBuffer> m_CommandBuffers;
 
 		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
 		std::vector<VkFence> m_IFFences;
 
-		VkQueue m_GraphicsQueue;
-		VkQueue	m_PresentQueue;
+		// Vertices
+		VkBuffer m_VertexBuffer;
+		VkBuffer m_IndexBuffer;
+		VkDeviceMemory m_VertexBufferMem;
+		VkDeviceMemory m_IndexBufferMem;
+
+		std::vector<Vertex> m_Vertices;
+		std::vector<uint32_t> m_Indices;
+
 	};
 
 }

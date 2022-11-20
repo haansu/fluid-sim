@@ -60,7 +60,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;FS_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\tol\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -81,7 +81,8 @@ IF EXIST $(SolutionDir)bin\Debug-x86_64\$(ProjectName)\shaders\ (xcopy /Q /E /Y 
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll ..\bin\Debug-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-x86_64\Render-Engine\Render-Engine.dll ..\bin\Debug-x86_64\App &gt; nul)
-IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\bin\Debug-x86_64\App\textures &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\textures ..\bin\Debug-x86_64\App\textures &gt; nul)</Command>
+IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\bin\Debug-x86_64\App\textures &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\textures ..\bin\Debug-x86_64\App\textures &gt; nul)
+IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\Debug-x86_64\App\models &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\models ..\bin\Debug-x86_64\App\models &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -90,7 +91,7 @@ IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;FS_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\tol\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -115,28 +116,36 @@ IF EXIST $(SolutionDir)bin\Release-x86_64\$(ProjectName)\shaders\ (xcopy /Q /E /
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll ..\bin\Release-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-x86_64\Render-Engine\Render-Engine.dll ..\bin\Release-x86_64\App &gt; nul)
-IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\bin\Release-x86_64\App\textures &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\textures ..\bin\Release-x86_64\App\textures &gt; nul)</Command>
+IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\bin\Release-x86_64\App\textures &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\textures ..\bin\Release-x86_64\App\textures &gt; nul)
+IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\Release-x86_64\App\models &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\models ..\bin\Release-x86_64\App\models &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Core\App.h" />
+    <ClInclude Include="src\Core\Display\GCamera.h" />
+    <ClInclude Include="src\Core\Display\GCameraEnums.h" />
+    <ClInclude Include="src\Core\Display\GDevice.h" />
+    <ClInclude Include="src\Core\Display\GModel.h" />
+    <ClInclude Include="src\Core\Entities\GObject.h" />
     <ClInclude Include="src\Core\Extra.h" />
-    <ClInclude Include="src\Core\Graphics\GraphicsObj.h" />
+    <ClInclude Include="src\Core\Graphics\UniformObject.h" />
     <ClInclude Include="src\Core\Graphics\Vertex.h" />
     <ClInclude Include="src\Core\Helper.h" />
     <ClInclude Include="src\Core\Render.h" />
     <ClInclude Include="src\Defs.h" />
-    <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp" />
+    <ClCompile Include="src\Core\Display\GCamera.cpp" />
+    <ClCompile Include="src\Core\Display\GDevice.cpp" />
+    <ClCompile Include="src\Core\Display\GModel.cpp" />
+    <ClCompile Include="src\Core\Entities\GObject.cpp" />
     <ClCompile Include="src\Core\Extra.cpp" />
     <ClCompile Include="src\Core\Graphics\Vertex.cpp" />
     <ClCompile Include="src\Core\Helper.cpp" />
-    <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
