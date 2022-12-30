@@ -25,6 +25,8 @@
 #include "Graphics/Vertex.h"
 #include "Graphics/UniformObject.h"
 #include "Display/GDevice.h"
+#include "Display/GBuffer.h"
+#include "Display/GModel.h"
 //
 
 #include "../Core.h"
@@ -62,16 +64,13 @@ namespace Render {
 		CreateTextureImage();
 		CreateTextureImageView();
 		CreateTextureSampler();
-		
-		LoadModel("models/room.obj");
 
-		CreateVertexBuffers();
-		CreateIndexBuffer();
 		CreateUniformBuffers();
 		CreateCommandBuffers();
 		CreateDescriptorPool();
 		CreateDescriptorSets();
 		CreateSyncObjects();
+		m_Models.push_back(new GModel{ *m_Device, "models/room.obj" });
 	}
 
 	void App::MainLoop() {
@@ -507,8 +506,8 @@ namespace Render {
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMem;
-		CreateBuffer(
-			  m_Device->GetDevice()
+		GBuffer::CreateBuffer(
+			  m_Device
 			, imgSize
 			, VK_BUFFER_USAGE_TRANSFER_SRC_BIT
 			, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
@@ -691,76 +690,6 @@ namespace Render {
 		m_Device->EndSTCommands(cmdBuffer);
 	}
 
-	void App::CreateVertexBuffers() {
-		VkDeviceSize bufferSize = sizeof(m_Vertices[0]) * m_Vertices.size();
-		
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMem;
-
-		CreateBuffer(
-			  m_Device->GetDevice()
-			, bufferSize
-			, VK_BUFFER_USAGE_TRANSFER_SRC_BIT
-			, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-			, stagingBuffer
-			, stagingBufferMem
-		);
-
-		void* data;
-		vkMapMemory(m_Device->GetDevice(), stagingBufferMem, 0, bufferSize, 0, &data);
-		memcpy(data, m_Vertices.data(), (size_t)bufferSize);
-		vkUnmapMemory(m_Device->GetDevice(), stagingBufferMem);
-
-		CreateBuffer(
-			  m_Device->GetDevice()
-			, bufferSize
-			, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
-			, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-			, m_VertexBuffer
-			, m_VertexBufferMem
-		);
-
-		CopyBuffer(stagingBuffer, m_VertexBuffer, bufferSize);
-
-		vkDestroyBuffer(m_Device->GetDevice(), stagingBuffer, nullptr);
-		vkFreeMemory(m_Device->GetDevice(), stagingBufferMem, nullptr);
-	}
-
-	void App::CreateIndexBuffer() {
-		VkDeviceSize bufferSize = sizeof(m_Indices[0]) * m_Indices.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMem;
-		
-		CreateBuffer(
-			  m_Device->GetDevice()
-			, bufferSize
-			, VK_BUFFER_USAGE_TRANSFER_SRC_BIT
-			, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-			, stagingBuffer
-			, stagingBufferMem
-		);
-
-		void* data;
-		vkMapMemory(m_Device->GetDevice(), stagingBufferMem, 0, bufferSize, 0, &data);
-		memcpy(data, m_Indices.data(), (size_t)bufferSize);
-		vkUnmapMemory(m_Device->GetDevice(), stagingBufferMem);
-
-		CreateBuffer(
-			  m_Device->GetDevice()
-			, bufferSize
-			, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT
-			, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-			, m_IndexBuffer
-			, m_IndexBufferMem
-		);
-
-		CopyBuffer(stagingBuffer, m_IndexBuffer, bufferSize);
-
-		vkDestroyBuffer(m_Device->GetDevice(), stagingBuffer, nullptr);
-		vkFreeMemory(m_Device->GetDevice(), stagingBufferMem, nullptr);
-	}
-
 	void App::CreateUniformBuffers() {
 		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 	
@@ -768,57 +697,14 @@ namespace Render {
 		m_UniformBuffersMem.resize(s_MaxFramesInFlight);
 
 		for (size_t i = 0; i < s_MaxFramesInFlight; i++)
-			CreateBuffer(
-				m_Device->GetDevice()
+			GBuffer::CreateBuffer(
+				  m_Device
 				, bufferSize
 				, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
 				, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
 				, m_UniformBuffers[i]
 				, m_UniformBuffersMem[i]
 			);
-	}
-
-	void App::CreateBuffer(
-		  VkDevice& device
-		, VkDeviceSize size
-		, VkBufferUsageFlags usgFlags
-		, VkMemoryPropertyFlags props
-		, VkBuffer& buffer
-		, VkDeviceMemory& bufferMem) {
-
-		VkBufferCreateInfo bufferInfo{};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
-		bufferInfo.usage = usgFlags;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
-			throw std::runtime_error("Failed to create vertex buffer!");
-
-		VkMemoryRequirements bufferMemReq{};
-		vkGetBufferMemoryRequirements(device, buffer, &bufferMemReq);
-
-		VkMemoryAllocateInfo mallocInfo{};
-		mallocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		mallocInfo.allocationSize = bufferMemReq.size;
-		mallocInfo.memoryTypeIndex = m_Device->GetMemType(bufferMemReq.memoryTypeBits, props);
-
-		if (vkAllocateMemory(device, &mallocInfo, nullptr, &bufferMem) != VK_SUCCESS)
-			throw std::runtime_error("Failed to allocate memory for the vertex buffer!");
-
-		vkBindBufferMemory(device, buffer, bufferMem, 0);
-	}
-
-	void App::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-		VkCommandBuffer cmdBuffer = m_Device->BeginSTCommands();
-
-		VkBufferCopy bufferCopy{};
-		bufferCopy.size = size;
-		bufferCopy.srcOffset = 0;
-		bufferCopy.dstOffset = 0;
-		vkCmdCopyBuffer(cmdBuffer, srcBuffer, dstBuffer, 1, &bufferCopy);
-
-		m_Device->EndSTCommands(cmdBuffer);
 	}
 
 	void App::CopyBufferToImg(VkBuffer buffer, VkImage img, uint32_t width, uint32_t height) {
@@ -983,13 +869,8 @@ namespace Render {
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
-
-		VkBuffer vertexBuffers[] = { m_VertexBuffer };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescSets[m_CurrentFrame], 0, nullptr);
-		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
+		
+		DrawObjects(commandBuffer, m_PipelineLayout, m_DescSets[m_CurrentFrame]);
 
 		VkViewport viewPort{};
 		viewPort.x = 0.0f;
@@ -1035,6 +916,7 @@ namespace Render {
 		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
 
 		RecCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
+
 
 
 		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
@@ -1157,50 +1039,65 @@ namespace Render {
 		m_Indices.clear();
 	}
 
-	void App::LoadModel(const char* path, bool hasTex) {
-		tinyobj::attrib_t att;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
-		std::string warn;
-		std::string err;
+	void App::DrawObjects(VkCommandBuffer& commBuffer, VkPipelineLayout& pipelineLayout, VkDescriptorSet& descSet) {
+		
+		ConstantDataPush push{};
 
-		if (!tinyobj::LoadObj(&att, &shapes, &materials, &warn, &err, path))
-			throw std::runtime_error(warn + err);
+		/*vkCmdPushConstants(
+			  commBuffer
+			, m_PipelineLayout
+			, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT
+			, 1
+			, sizeof(ConstantDataPush)
+			, &push
+		);*/
 
-		std::vector<Vertex> modelVertices;
-		std::vector<uint32_t> modelIndices;
-
-		for (const auto& elem : shapes) {
-			for (const auto& index : elem.mesh.indices) {
-				Vertex vert{};
-
-				vert.pos = {
-					  att.vertices[3 * index.vertex_index + 0]
-					, att.vertices[3 * index.vertex_index + 1]
-					, att.vertices[3 * index.vertex_index + 2]
-				};
-
-				vert.uv = {
-					  att.texcoords[2 * index.texcoord_index + 0]
-					, 1.0f - att.texcoords[2 * index.texcoord_index + 1]
-				};
-
-				vert.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-				//modelVertices.push_back(vert);
-				//modelIndices.push_back((uint32_t)m_Indices.size());
-				m_Vertices.push_back(vert);
-				m_Indices.push_back((uint32_t)m_Indices.size());
-			}
-		}
-
-		/*GModel* model = std::make_shared<GModel>(device, vertices, indices);
-		GObject object = GObject::CreateGObject();
-		object.model = model;
-		object.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		object.transfrom.translate.x = 1.0f;
-
-		m_Objects.push_back(object);*/
+		m_Models[0]->Bind(commBuffer, pipelineLayout, descSet);
+		m_Models[0]->Draw(commBuffer);
 	}
+
+	//void App::LoadModel(const char* path, bool hasTex) {
+	//	tinyobj::attrib_t att;
+	//	std::vector<tinyobj::shape_t> shapes;
+	//	std::vector<tinyobj::material_t> materials;
+	//	std::string warn;
+	//	std::string err;
+
+	//	if (!tinyobj::LoadObj(&att, &shapes, &materials, &warn, &err, path))
+	//		throw std::runtime_error(warn + err);
+
+	//	std::vector<Vertex> modelVertices;
+	//	std::vector<uint32_t> modelIndices;
+
+	//	for (const auto& elem : shapes) {
+	//		for (const auto& index : elem.mesh.indices) {
+	//			Vertex vert{};
+
+	//			vert.pos = {
+	//				  att.vertices[3 * index.vertex_index + 0]
+	//				, att.vertices[3 * index.vertex_index + 1]
+	//				, att.vertices[3 * index.vertex_index + 2]
+	//			};
+
+	//			vert.uv = {
+	//				  att.texcoords[2 * index.texcoord_index + 0]
+	//				, 1.0f - att.texcoords[2 * index.texcoord_index + 1]
+	//			};
+
+	//			vert.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	//			modelVertices.push_back(vert);
+	//			modelIndices.push_back((uint32_t)m_Indices.size());
+	//			//m_Vertices.push_back(vert);
+	//			//m_Indices.push_back((uint32_t)m_Indices.size());
+	//		}
+	//	}
+
+	//	GModel model = std::make_shared<GModel>(device, vertices, indices);
+	//	GObject object = GObject::CreateGObject();
+	//	object.model = model;
+	//	object.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	//	object.transfrom.translate.x = 1.0f;
+	//}
 
 }

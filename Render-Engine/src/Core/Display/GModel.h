@@ -6,34 +6,41 @@
 
 namespace Render {
 
+	// Forward declare
+	class GBuffer;
+	class GDevice;
+
 	class GModel {
 	public:
 		NO_COPY(GModel);
 
-		std::unique_ptr<GModel> LoadModel(const std::string& path);
+		GModel(GDevice& device, const std::string& modelPath);
+		~GModel();
+
+		void LoadModel(const std::string& path);
 	
-		void Bind(VkCommandBuffer maybe);
-		void Draw(VkCommandBuffer maybe);
+		void Bind(VkCommandBuffer& commBuffer, VkPipelineLayout& pipelineLayout, VkDescriptorSet& descSet);
+		void Draw(VkCommandBuffer& commBuffer);
 	private:
 		
 		void CreateVertexBuffers(const std::vector<Vertex>& vertices);
 		void CreateIndexBuffers(const std::vector<uint32_t>& indices);
 
-		VkDevice m_Device;
+		GDevice* m_Device;
 		
-		std::unique_ptr<VkBuffer> m_VertexBuffer;
-		std::unique_ptr<VkBuffer> m_IndexBuffer;
+		std::unique_ptr<GBuffer> m_VertexBuffer;
+		std::unique_ptr<GBuffer> m_IndexBuffer;
 		
 		VkDeviceMemory m_VertexBufferMem;
 		VkDeviceMemory m_IndexBufferMem;
 	
 		uint32_t m_IndexCount;
+		uint32_t m_VertexCount;
 
 		std::vector<Vertex> m_Vertices;
 		std::vector<uint32_t> m_Indices;
 
 		bool m_HasIndexBuffer = false;
-
 	};
 
 }
