@@ -121,6 +121,7 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Display\GBuffer.h" />
     <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\Display\GCamera.h" />
@@ -138,6 +139,7 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Display\GBuffer.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Core\Display\GCamera.cpp" />
     <ClCompile Include="src\Core\Display\GDevice.cpp" />
