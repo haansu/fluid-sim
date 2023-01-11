@@ -14,6 +14,7 @@ namespace Render {
 	class Window;
 	class GDevice;
 	class GModel;
+  
 	class GObject;
 	class GCamera;
 
@@ -166,7 +167,6 @@ namespace Render {
 		std::vector<uint32_t> m_Indices;
 
 		// Draw & Models
-
 		std::vector<GObject*> m_Objects;
 		
 	};

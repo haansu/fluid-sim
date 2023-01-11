@@ -1080,4 +1080,48 @@ namespace Render {
 		}
 	}
 
+	//void App::LoadModel(const char* path, bool hasTex) {
+	//	tinyobj::attrib_t att;
+	//	std::vector<tinyobj::shape_t> shapes;
+	//	std::vector<tinyobj::material_t> materials;
+	//	std::string warn;
+	//	std::string err;
+
+	//	if (!tinyobj::LoadObj(&att, &shapes, &materials, &warn, &err, path))
+	//		throw std::runtime_error(warn + err);
+
+	//	std::vector<Vertex> modelVertices;
+	//	std::vector<uint32_t> modelIndices;
+
+	//	for (const auto& elem : shapes) {
+	//		for (const auto& index : elem.mesh.indices) {
+	//			Vertex vert{};
+
+	//			vert.pos = {
+	//				  att.vertices[3 * index.vertex_index + 0]
+	//				, att.vertices[3 * index.vertex_index + 1]
+	//				, att.vertices[3 * index.vertex_index + 2]
+	//			};
+
+	//			vert.uv = {
+	//				  att.texcoords[2 * index.texcoord_index + 0]
+	//				, 1.0f - att.texcoords[2 * index.texcoord_index + 1]
+	//			};
+
+	//			vert.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	//			modelVertices.push_back(vert);
+	//			modelIndices.push_back((uint32_t)m_Indices.size());
+	//			//m_Vertices.push_back(vert);
+	//			//m_Indices.push_back((uint32_t)m_Indices.size());
+	//		}
+	//	}
+
+	//	GModel model = std::make_shared<GModel>(device, vertices, indices);
+	//	GObject object = GObject::CreateGObject();
+	//	object.model = model;
+	//	object.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	//	object.transfrom.translate.x = 1.0f;
+	//}
+
 }
