@@ -20,7 +20,7 @@ namespace Render {
 		m_Device = &device;
 		LoadModel(modelPath);
 		CreateVertexBuffers(m_Vertices);
-		CreateIndexBuffers(m_Indices);		
+		CreateIndexBuffers(m_Indices);
 	}
 
 	GModel::~GModel() {};
@@ -134,15 +134,13 @@ namespace Render {
 	/// <summary>
 	/// Binds model to the command buffer
 	/// </summary>
-	void GModel::Bind(VkCommandBuffer& commBuffer, VkPipelineLayout& pipelineLayout, VkDescriptorSet& descSet) {
+	void GModel::Bind(VkCommandBuffer& commBuffer) {
 		VkBuffer buffers[] = {m_VertexBuffer->GetVkBuffer()};
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commBuffer, 0, 1, buffers, offsets);
 
 		if (m_HasIndexBuffer)
 			vkCmdBindIndexBuffer(commBuffer, m_IndexBuffer->GetVkBuffer(), 0, VK_INDEX_TYPE_UINT32);
-
-		vkCmdBindDescriptorSets(commBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descSet, 0, nullptr);
 	}
 
 	/// <summary>

@@ -34,9 +34,6 @@
     <ClInclude Include="src\Core\Display\GModel.h">
       <Filter>Core\Display</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Entities\GObject.h">
-      <Filter>Core\Entities</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Extra.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -60,6 +57,8 @@
     <ClInclude Include="src\Core\Display\GBuffer.h">
       <Filter>Core\Entities</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Display\GObject.h" />
+    <ClInclude Include="src\Core\Display\GColor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp">
@@ -73,9 +72,6 @@
     </ClCompile>
     <ClCompile Include="src\Core\Display\GModel.cpp">
       <Filter>Core\Display</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Entities\GObject.cpp">
-      <Filter>Core\Entities</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Extra.cpp">
       <Filter>Core</Filter>
@@ -93,6 +89,8 @@
     <ClCompile Include="src\Core\Display\GBuffer.cpp">
       <Filter>Core\Display</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Display\GObject.cpp" />
+    <ClCompile Include="src\Core\Display\GColor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\shader.frag" />
