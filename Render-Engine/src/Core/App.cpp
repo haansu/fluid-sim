@@ -1,9 +1,12 @@
 #include "pch.h"
 
+// Core
 #include "App.h"
 #include "Extra.h"
 #include "Helper.h"
-#include "Entities/GObject.h"
+#include "../Core.h"
+#include "../Window/Window.h"
+//
 
 // GLM
 #define GLM_FORCE_RADIANS
@@ -27,11 +30,11 @@
 #include "Display/GDevice.h"
 #include "Display/GBuffer.h"
 #include "Display/GModel.h"
+#include "Display/GObject.h"
+#include "Display/GCamera.h"
 //
 
-#include "../Core.h"
-#include "../Window/Window.h"
-
+// STL
 #include <algorithm>
 #include <array>
 #include <limits>
@@ -39,6 +42,7 @@
 #include <set>
 #include <vector>
 #include <chrono>
+//
 
 namespace Render {
 
@@ -51,7 +55,8 @@ namespace Render {
 	void App::Init() {
 		Window* pWindow = new Window{ 1280, 720, "Fluid Sim" };
 		m_Device = new GDevice{ *pWindow };
-
+		m_Camera = new GCamera{};
+		
 		CreateSwapChain();
 		CreateImageViews();
 		CreateRenderPass();
@@ -70,13 +75,33 @@ namespace Render {
 		CreateDescriptorPool();
 		CreateDescriptorSets();
 		CreateSyncObjects();
-		m_Models.push_back(new GModel{ *m_Device, "models/room.obj" });
+
+		// For now objects added in a hacky way
+		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj" });
+		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj" });
+		m_Objects[0]->tranform.translate.x += 4;
+
 	}
 
 	void App::MainLoop() {
+
+		// For now this hacky animation is included
+
+		float z = 1.0f;
+
+		float modi = 0.0f;
+		float modi2 = 0.0f;
 		while (!m_Device->GetWindow()->ShouldClose()) {
 			DrawFrame();
 			glfwPollEvents();
+
+			//m_Camera->SetOrthoProjection(10.0f, 10.0f, 10.0f, 10.f, 0.1f, 1000.0f);
+			m_Camera->SetPerspProjection(glm::radians(50.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 100.0f);
+			m_Camera->SetViewTrg(glm::vec3{ 3.0f, modi2, modi }, glm::vec3{ 0.0f });
+			//m_Camera->SetViewTrg(glm::vec3{ 0.0f, 0.0f, -110.0f }, glm::vec3{ 0.0f, 0.0f, 0.0f });
+
+			modi += 0.001f;
+			modi2 += 0.005f;
 		}
 
 		vkDeviceWaitIdle(m_Device->GetDevice());
@@ -380,12 +405,19 @@ namespace Render {
 		dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(dStates.size());
 		dynamicStateInfo.pDynamicStates = dStates.data();
+		
+		VkPushConstantRange pushConstantRange{};
+		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+		pushConstantRange.offset = 0;
+		pushConstantRange.size = sizeof(PushConstantData);
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 1;
 		pipelineLayoutInfo.pSetLayouts = &m_DescSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
+		pipelineLayoutInfo.pushConstantRangeCount = 1;
+		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
 		VkPipelineDepthStencilStateCreateInfo depthStencil{};
 		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -829,7 +861,7 @@ namespace Render {
 
 	void App::RecreateSwapChain() {
 		int width = 0, height = 0;
-		
+
 		while (!width && !height) {
 			glfwGetFramebufferSize(m_Device->GetWindow()->GetGLFWwindowPointer(), &width, &height);
 			glfwWaitEvents();
@@ -917,8 +949,6 @@ namespace Render {
 
 		RecCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
 
-
-
 		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
 		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -964,25 +994,9 @@ namespace Render {
 		float		deltaTime	= std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 	
 		UniformBufferObject uniBuff{};
-		uniBuff.model = glm::rotate(
-			  glm::mat4(1.0f)
-			, deltaTime * glm::radians(10.0f)
-			, glm::vec3(0.0f, 0.0f, 1.0f)
-		);
-
-		uniBuff.view = glm::lookAt(
-			  glm::vec3(2.0f, 0.0f, 2.0f)
-			, glm::vec3(0.0f, 0.0f, 0.0f)
-			, glm::vec3(0.0f, 0.0f, 1.0f)
-		);
-
-		uniBuff.proj = glm::perspective(
-			  glm::radians(60.0f)
-			, (float) m_SwapChainExtent.width / (float) m_SwapChainExtent.height
-			,  0.1f, 10.0f
-		);
-
-		uniBuff.proj[1][1] *= -1;
+		uniBuff.model = m_Camera->GetInvViewMat();
+		uniBuff.view = m_Camera->GetViewMat();
+		uniBuff.proj = m_Camera->GetProjMat();
 
 		void* data;
 		vkMapMemory(m_Device->GetDevice(), m_UniformBuffersMem[currentFrame], 0, sizeof(uniBuff), 0, &data);
@@ -1041,63 +1055,29 @@ namespace Render {
 
 	void App::DrawObjects(VkCommandBuffer& commBuffer, VkPipelineLayout& pipelineLayout, VkDescriptorSet& descSet) {
 		
-		ConstantDataPush push{};
+		PushConstantData push{};
 
-		/*vkCmdPushConstants(
-			  commBuffer
-			, m_PipelineLayout
-			, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT
-			, 1
-			, sizeof(ConstantDataPush)
-			, &push
-		);*/
+		vkCmdBindDescriptorSets(commBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descSet, 0, nullptr);
 
-		m_Models[0]->Bind(commBuffer, pipelineLayout, descSet);
-		m_Models[0]->Draw(commBuffer);
+		for (auto& elem : m_Objects) {
+			if (!elem)
+				continue;
+
+			push.modelMatrix = elem->tranform.Model();
+			push.normalMatrix = elem->tranform.Normal();
+
+			vkCmdPushConstants(
+				  commBuffer
+				, pipelineLayout
+				, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT
+				, 0
+				, sizeof(PushConstantData)
+				, &push
+			);
+
+			elem->m_Model->Bind(commBuffer);
+			elem->m_Model->Draw(commBuffer);
+		}
 	}
-
-	//void App::LoadModel(const char* path, bool hasTex) {
-	//	tinyobj::attrib_t att;
-	//	std::vector<tinyobj::shape_t> shapes;
-	//	std::vector<tinyobj::material_t> materials;
-	//	std::string warn;
-	//	std::string err;
-
-	//	if (!tinyobj::LoadObj(&att, &shapes, &materials, &warn, &err, path))
-	//		throw std::runtime_error(warn + err);
-
-	//	std::vector<Vertex> modelVertices;
-	//	std::vector<uint32_t> modelIndices;
-
-	//	for (const auto& elem : shapes) {
-	//		for (const auto& index : elem.mesh.indices) {
-	//			Vertex vert{};
-
-	//			vert.pos = {
-	//				  att.vertices[3 * index.vertex_index + 0]
-	//				, att.vertices[3 * index.vertex_index + 1]
-	//				, att.vertices[3 * index.vertex_index + 2]
-	//			};
-
-	//			vert.uv = {
-	//				  att.texcoords[2 * index.texcoord_index + 0]
-	//				, 1.0f - att.texcoords[2 * index.texcoord_index + 1]
-	//			};
-
-	//			vert.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-	//			modelVertices.push_back(vert);
-	//			modelIndices.push_back((uint32_t)m_Indices.size());
-	//			//m_Vertices.push_back(vert);
-	//			//m_Indices.push_back((uint32_t)m_Indices.size());
-	//		}
-	//	}
-
-	//	GModel model = std::make_shared<GModel>(device, vertices, indices);
-	//	GObject object = GObject::CreateGObject();
-	//	object.model = model;
-	//	object.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//	object.transfrom.translate.x = 1.0f;
-	//}
 
 }

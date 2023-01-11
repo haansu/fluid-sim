@@ -19,10 +19,10 @@ namespace Render {
 
 		void LoadModel(const std::string& path);
 	
-		void Bind(VkCommandBuffer& commBuffer, VkPipelineLayout& pipelineLayout, VkDescriptorSet& descSet);
+		void Bind(VkCommandBuffer& commBuffer);
 		void Draw(VkCommandBuffer& commBuffer);
 	private:
-		
+
 		void CreateVertexBuffers(const std::vector<Vertex>& vertices);
 		void CreateIndexBuffers(const std::vector<uint32_t>& indices);
 

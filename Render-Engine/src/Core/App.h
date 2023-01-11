@@ -14,6 +14,8 @@ namespace Render {
 	class Window;
 	class GDevice;
 	class GModel;
+	class GObject;
+	class GCamera;
 
 	struct QFamilyInd;
 	struct SwapChainSupportDetails;
@@ -114,6 +116,7 @@ namespace Render {
 		uint32_t m_CurrentFrame = 0;
 
 		GDevice* m_Device;
+		GCamera* m_Camera;
 
 		VkInstance m_VkInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
@@ -164,7 +167,7 @@ namespace Render {
 
 		// Draw & Models
 
-		std::vector<GModel*> m_Models;
+		std::vector<GObject*> m_Objects;
 		
 	};
 

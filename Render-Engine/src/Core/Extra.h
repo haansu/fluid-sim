@@ -39,7 +39,16 @@ namespace Render {
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
-	struct ConstantDataPush {
+	struct Transform {
+		glm::vec3 translate{};
+		glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 rotate{};
+
+		glm::mat4 Model();
+		glm::mat3 Normal();
+	};
+
+	struct PushConstantData {
 		glm::mat4 modelMatrix{ 1.0f };
 		glm::mat4 normalMatrix{ 1.0f };
 	};

@@ -121,6 +121,8 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Display\GColor.h" />
+    <ClInclude Include="src\Core\Display\GObject.h" />
     <ClInclude Include="src\Core\Display\GBuffer.h" />
     <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Core\App.h" />
@@ -128,7 +130,6 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClInclude Include="src\Core\Display\GCameraEnums.h" />
     <ClInclude Include="src\Core\Display\GDevice.h" />
     <ClInclude Include="src\Core\Display\GModel.h" />
-    <ClInclude Include="src\Core\Entities\GObject.h" />
     <ClInclude Include="src\Core\Extra.h" />
     <ClInclude Include="src\Core\Graphics\UniformObject.h" />
     <ClInclude Include="src\Core\Graphics\Vertex.h" />
@@ -139,12 +140,13 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Display\GColor.cpp" />
+    <ClCompile Include="src\Core\Display\GObject.cpp" />
     <ClCompile Include="src\Core\Display\GBuffer.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Core\Display\GCamera.cpp" />
     <ClCompile Include="src\Core\Display\GDevice.cpp" />
     <ClCompile Include="src\Core\Display\GModel.cpp" />
-    <ClCompile Include="src\Core\Entities\GObject.cpp" />
     <ClCompile Include="src\Core\Extra.cpp" />
     <ClCompile Include="src\Core\Graphics\Vertex.cpp" />
     <ClCompile Include="src\Core\Helper.cpp" />
