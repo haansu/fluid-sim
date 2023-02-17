@@ -1,13 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "App", "App\App.vcxproj", "{46D6870B-B2DF-877C-3B5B-9E7CA763937C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLFW", "vendor\lib\glfw\GLFW.vcxproj", "{154B857C-0182-860D-AA6E-6C109684020F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGUI", "vendor\lib\imgui\ImGUI.vcxproj", "{80FB640D-EC0F-8DBE-B591-301E216589EF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{154B857C-0182-860D-AA6E-6C109684020F} = {154B857C-0182-860D-AA6E-6C109684020F}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Render-Engine", "Render-Engine\Render-Engine.vcxproj", "{289DC166-945D-3D9D-5D98-861AC9178279}"
+	ProjectSection(ProjectDependencies) = postProject
+		{154B857C-0182-860D-AA6E-6C109684020F} = {154B857C-0182-860D-AA6E-6C109684020F}
+		{80FB640D-EC0F-8DBE-B591-301E216589EF} = {80FB640D-EC0F-8DBE-B591-301E216589EF}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +38,10 @@ Global
 		{154B857C-0182-860D-AA6E-6C109684020F}.Debug|x64.Build.0 = Debug|x64
 		{154B857C-0182-860D-AA6E-6C109684020F}.Release|x64.ActiveCfg = Release|x64
 		{154B857C-0182-860D-AA6E-6C109684020F}.Release|x64.Build.0 = Release|x64
+		{80FB640D-EC0F-8DBE-B591-301E216589EF}.Debug|x64.ActiveCfg = Debug|x64
+		{80FB640D-EC0F-8DBE-B591-301E216589EF}.Debug|x64.Build.0 = Debug|x64
+		{80FB640D-EC0F-8DBE-B591-301E216589EF}.Release|x64.ActiveCfg = Release|x64
+		{80FB640D-EC0F-8DBE-B591-301E216589EF}.Release|x64.Build.0 = Release|x64
 		{289DC166-945D-3D9D-5D98-861AC9178279}.Debug|x64.ActiveCfg = Debug|x64
 		{289DC166-945D-3D9D-5D98-861AC9178279}.Debug|x64.Build.0 = Debug|x64
 		{289DC166-945D-3D9D-5D98-861AC9178279}.Release|x64.ActiveCfg = Release|x64
@@ -34,5 +49,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AA197012-1327-43EC-99E0-793668800402}
 	EndGlobalSection
 EndGlobal

@@ -1,22 +1,342 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="vendor">
+      <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="vendor\lib">
+      <UniqueIdentifier>{59B4C5A8-456C-07F6-AE73-E0519A4AA2E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui">
+      <UniqueIdentifier>{83E08793-6FD9-A6E5-980B-8C6A846386F1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\backends">
+      <UniqueIdentifier>{0D9E61B9-7960-9543-C210-24D02E126E21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples">
+      <UniqueIdentifier>{91712264-FD33-56EE-46E4-E47AB2E52ECC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_allegro5">
+      <UniqueIdentifier>{46B5F91C-321D-C0EA-9B88-D400870FD7D6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_android_opengl3">
+      <UniqueIdentifier>{63B05E7D-CF76-BB99-18D2-49FC84D729FE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_emscripten_opengl3">
+      <UniqueIdentifier>{9CE83549-8827-E0C4-31AA-BCF61DC8952F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_emscripten_wgpu">
+      <UniqueIdentifier>{47D204F8-B398-6114-FCF3-EF7668F9CF78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_glfw_opengl2">
+      <UniqueIdentifier>{511DEEBC-3D9B-3E56-2693-FCED12B0807E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_glfw_opengl3">
+      <UniqueIdentifier>{521DEEBC-3E9B-3E56-2793-FCED13B0807E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_glfw_vulkan">
+      <UniqueIdentifier>{4BD5B12D-B745-B4A6-8064-2E2FEC93ECA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_glut_opengl2">
+      <UniqueIdentifier>{3D4B179C-29C9-6735-12C1-25CDFEDDA95D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_null">
+      <UniqueIdentifier>{869108C4-72E3-DFB3-5B02-1DC447F3F89C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_sdl_directx11">
+      <UniqueIdentifier>{A2EAD1A0-0E26-3264-171B-AFF383D5B694}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_sdl_opengl2">
+      <UniqueIdentifier>{64D5F8A2-D045-FB1B-9964-75A40594331D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_sdl_opengl3">
+      <UniqueIdentifier>{65D5F8A2-D145-FB1B-9A64-75A40694331D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_sdl_sdlrenderer">
+      <UniqueIdentifier>{074F47A8-7315-A4C4-BC70-322728761229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_sdl_vulkan">
+      <UniqueIdentifier>{FE566C3C-EA69-6C95-9353-49827F4509E3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_win32_directx10">
+      <UniqueIdentifier>{51294A83-BDEF-A69F-064B-350272501504}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_win32_directx11">
+      <UniqueIdentifier>{52294A83-BEEF-A69F-074B-350273501504}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_win32_directx12">
+      <UniqueIdentifier>{53294A83-BFEF-A69F-084B-350274501504}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\example_win32_directx9">
+      <UniqueIdentifier>{090929BE-F5B1-90ED-1E48-AC6C0A50AB2E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\libs">
+      <UniqueIdentifier>{8A981C36-76BE-E69C-5F04-6C684BC90B69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\libs\glfw">
+      <UniqueIdentifier>{8952303D-F50B-9BE7-7E6B-B5C1EA235157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\libs\glfw\include">
+      <UniqueIdentifier>{FCF2879A-6858-1B21-F130-BDF95D951090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\libs\glfw\include\GLFW">
+      <UniqueIdentifier>{BBEB9D16-A794-0546-D02A-21C5BC322087}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\examples\libs\usynergy">
+      <UniqueIdentifier>{FF38125D-6BC8-D347-74C4-B45FE0D20E54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\misc">
+      <UniqueIdentifier>{3EBD9798-AA29-5393-731D-EBF0DF4875FB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\misc\cpp">
+      <UniqueIdentifier>{10A6AB6C-7C68-DFF6-C518-6E83311AB8D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\misc\fonts">
+      <UniqueIdentifier>{172E6346-833B-912C-0C22-8D17782E5DE3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\misc\freetype">
+      <UniqueIdentifier>{B181ACB9-9DA7-7620-86ED-FBEB72B29BEC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\lib\imgui\misc\single_file">
+      <UniqueIdentifier>{2E53D9AB-9AC1-2E2B-E3AA-E92A4F5824C7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_allegro5.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_android.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_dx10.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_dx11.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_dx12.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_dx9.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_glfw.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_glut.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_metal.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_opengl2.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_opengl3_loader.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_osx.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_sdl.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_sdlrenderer.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_vulkan.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_wgpu.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\backends\imgui_impl_win32.h">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\examples\example_allegro5\imconfig_allegro5.h">
+      <Filter>vendor\lib\imgui\examples\example_allegro5</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\examples\libs\glfw\include\GLFW\glfw3.h">
+      <Filter>vendor\lib\imgui\examples\libs\glfw\include\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\examples\libs\glfw\include\GLFW\glfw3native.h">
+      <Filter>vendor\lib\imgui\examples\libs\glfw\include\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\examples\libs\usynergy\uSynergy.h">
+      <Filter>vendor\lib\imgui\examples\libs\usynergy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\imconfig.h">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\imgui.h">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\imgui_impl_glfw.h">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\imgui_impl_vulkan.h">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\imgui_internal.h">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\imstb_rectpack.h">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\imstb_textedit.h">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\imstb_truetype.h">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\misc\cpp\imgui_stdlib.h">
+      <Filter>vendor\lib\imgui\misc\cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\misc\freetype\imgui_freetype.h">
+      <Filter>vendor\lib\imgui\misc\freetype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vendor\lib\imgui\misc\single_file\imgui_single_file.h">
+      <Filter>vendor\lib\imgui\misc\single_file</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_allegro5.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_android.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_dx10.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_dx11.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_dx12.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_dx9.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_glfw.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_glut.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_opengl2.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_sdl.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_sdlrenderer.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_vulkan.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_wgpu.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>vendor\lib\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_allegro5\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_allegro5</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_android_opengl3\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_android_opengl3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_emscripten_opengl3\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_emscripten_opengl3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_emscripten_wgpu\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_emscripten_wgpu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_glfw_opengl2\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_glfw_opengl2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_glfw_opengl3\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_glfw_opengl3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_glfw_vulkan\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_glfw_vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_glut_opengl2\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_glut_opengl2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_null\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_null</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_sdl_directx11\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_sdl_directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_sdl_opengl2\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_sdl_opengl2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_sdl_opengl3\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_sdl_opengl3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_sdl_sdlrenderer\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_sdl_sdlrenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_sdl_vulkan\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_sdl_vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_win32_directx10\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_win32_directx10</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_win32_directx11\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_win32_directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_win32_directx12\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_win32_directx12</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\examples\example_win32_directx9\main.cpp">
+      <Filter>vendor\lib\imgui\examples\example_win32_directx9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\imgui.cpp">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\imgui_demo.cpp">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\imgui_draw.cpp">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\imgui_impl_glfw.cpp">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\imgui_impl_vulkan.cpp">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\imgui_tables.cpp">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\imgui_widgets.cpp">
+      <Filter>vendor\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\misc\cpp\imgui_stdlib.cpp">
+      <Filter>vendor\lib\imgui\misc\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\misc\fonts\binary_to_compressed_c.cpp">
+      <Filter>vendor\lib\imgui\misc\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vendor\lib\imgui\misc\freetype\imgui_freetype.cpp">
+      <Filter>vendor\lib\imgui\misc\freetype</Filter>
+    </ClCompile>
     <ClCompile Include="src\App.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

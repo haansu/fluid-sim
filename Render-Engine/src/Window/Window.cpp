@@ -31,6 +31,8 @@ namespace Render {
 	void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height) {
 		auto tWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 		tWindow->framebufferResized = true;
+		tWindow->_SetWidth(width);
+		tWindow->_SetHeight(height);
 	}
 
 	bool Window::ShouldClose() {
@@ -39,6 +41,22 @@ namespace Render {
 
 	GLFWwindow* Window::GetGLFWwindowPointer() {
 		return m_PWindow;
+	}
+
+	int Window::GetWidth() {
+		return m_Width;
+	}
+
+	int Window::GetHeight() {
+		return m_Height;
+	}
+
+	void Window::_SetWidth(int width) {
+		m_Width = width;
+	}
+
+	void Window::_SetHeight(int height) {
+		m_Height = height;
 	}
 
 }

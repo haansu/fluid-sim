@@ -25,7 +25,7 @@ namespace Render {
 		const glm::mat4& GetProjMat() { return m_ProjMat; }
 		const glm::mat4& GetViewMat() { return m_ViewMat; }
 		const glm::mat4& GetInvViewMat() { return m_InvViewMat; }
-		const glm::vec3& GetPosVec() { return glm::vec3(m_InvViewMat[3]); }
+		const glm::vec3 GetPosVec() { return glm::vec3(m_InvViewMat[3]); }
 
 	private:
 		glm::vec3 m_Up = glm::vec3(0.0f, 0.0f, 1.0f);

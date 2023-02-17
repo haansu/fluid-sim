@@ -18,7 +18,7 @@ namespace Render {
 		GRender() {};
 
 		void AddModel(const GModel& model);
-		void DeleteModel(const GModel& model)
+		void DeleteModel(const GModel& model);
 
 	private:
 		std::vector<GModel> m_Models;

@@ -67,7 +67,7 @@ namespace Render {
 
 		const glm::vec3 scaleInv = 1.0f / scale;
 
-		return glm::mat3{{
+		return glm::mat3{ {
 				  scaleInv.x * (cosy * cosz + siny * sinx * sinz)
 				, scaleInv.x * (cosx * sinz)
 				, scaleInv.x * (cosy * sinx * sinz - cosz * siny)

@@ -59,7 +59,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FS_APP;FS_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;..\Render-Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\vendor\lib\imgui;..\vendor\lib\imgui\backends;..\Engine\src;..\Render-Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -69,8 +69,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GLFW.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;..\bin\Debug-x86_64\Engine;..\bin\Debug-x86_64\Render-Engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW.lib;ImGUI.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;..\vendor\lib\imgui\bin\Debug-x86_64\ImGUI;..\bin\Debug-x86_64\Engine;..\bin\Debug-x86_64\Render-Engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -78,7 +78,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FS_APP;FS_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;..\Render-Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\vendor\lib\imgui;..\vendor\lib\imgui\backends;..\Engine\src;..\Render-Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -92,8 +92,8 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>GLFW.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;..\bin\Release-x86_64\Engine;..\bin\Release-x86_64\Render-Engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW.lib;ImGUI.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;..\vendor\lib\imgui\bin\Debug-x86_64\ImGUI;..\bin\Release-x86_64\Engine;..\bin\Release-x86_64\Render-Engine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

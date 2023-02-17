@@ -60,7 +60,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;FS_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\tol\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\tol\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\vendor\lib\imgui;..\vendor\lib\imgui\backends;..\Engine\src;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -70,8 +70,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GLFW.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW.lib;vulkan-1.lib;ImGUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;..\vendor\lib\imgui\bin\Debug-x86_64\ImGUI;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Debug-x86_64\Render-Engine\Render-Engine.lib</ImportLibrary>
     </Link>
     <PreBuildEvent>
@@ -91,7 +91,7 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;FS_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\tol\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\Engine\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\tol\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.216.0\Include;..\vendor\lib\imgui;..\vendor\lib\imgui\backends;..\Engine\src;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -105,8 +105,8 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>GLFW.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW.lib;vulkan-1.lib;ImGUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.216.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;..\vendor\lib\imgui\bin\Debug-x86_64\ImGUI;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Release-x86_64\Render-Engine\Render-Engine.lib</ImportLibrary>
     </Link>
     <PreBuildEvent>
@@ -121,43 +121,49 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Display\GColor.h" />
-    <ClInclude Include="src\Core\Display\GObject.h" />
-    <ClInclude Include="src\Core\Display\GBuffer.h" />
     <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Core\App.h" />
+    <ClInclude Include="src\Core\Controller\GCameraController.h" />
+    <ClInclude Include="src\Core\Controller\GController.h" />
+    <ClInclude Include="src\Core\Display\GBuffer.h" />
     <ClInclude Include="src\Core\Display\GCamera.h" />
     <ClInclude Include="src\Core\Display\GCameraEnums.h" />
+    <ClInclude Include="src\Core\Display\GColor.h" />
     <ClInclude Include="src\Core\Display\GDevice.h" />
     <ClInclude Include="src\Core\Display\GModel.h" />
+    <ClInclude Include="src\Core\Display\GObject.h" />
+    <ClInclude Include="src\Core\Display\GRender.h" />
     <ClInclude Include="src\Core\Extra.h" />
     <ClInclude Include="src\Core\Graphics\UniformObject.h" />
     <ClInclude Include="src\Core\Graphics\Vertex.h" />
     <ClInclude Include="src\Core\Helper.h" />
     <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Core\Time.h" />
+    <ClInclude Include="src\Core\UI\UI.h" />
     <ClInclude Include="src\Defs.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\Display\GColor.cpp" />
-    <ClCompile Include="src\Core\Display\GObject.cpp" />
-    <ClCompile Include="src\Core\Display\GBuffer.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
+    <ClCompile Include="src\Core\Controller\GCameraController.cpp" />
+    <ClCompile Include="src\Core\Controller\GController.cpp" />
+    <ClCompile Include="src\Core\Display\GBuffer.cpp" />
     <ClCompile Include="src\Core\Display\GCamera.cpp" />
+    <ClCompile Include="src\Core\Display\GColor.cpp" />
     <ClCompile Include="src\Core\Display\GDevice.cpp" />
     <ClCompile Include="src\Core\Display\GModel.cpp" />
+    <ClCompile Include="src\Core\Display\GObject.cpp" />
+    <ClCompile Include="src\Core\Display\GRender.cpp" />
     <ClCompile Include="src\Core\Extra.cpp" />
     <ClCompile Include="src\Core\Graphics\Vertex.cpp" />
     <ClCompile Include="src\Core\Helper.cpp" />
+    <ClCompile Include="src\Core\Time.cpp" />
+    <ClCompile Include="src\Core\UI\UI.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Shaders\shader.frag" />
-    <None Include="src\Shaders\shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
