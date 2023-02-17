@@ -92,11 +92,11 @@ namespace Render {
 
 		//
 		// KEEP UNTIL LOGGING SYSTEM IN PLACE
-		if (FS_DEBUG) {
+#ifdef FS_DEBUG
 			std::cout << "\nAvailable extensions:\n";
 			for (auto elem : extensions)
 				std::cout << "\t" << elem << "\n";
-		}
+#endif
 	}
 
 	void GDevice::SetupDebugMsgr() {

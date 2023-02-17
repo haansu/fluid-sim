@@ -4,6 +4,7 @@
 #include "App.h"
 #include "Extra.h"
 #include "Helper.h"
+#include <Core/Time.h>
 #include "../Core.h"
 #include "../Window/Window.h"
 //
@@ -34,6 +35,14 @@
 #include "Display/GCamera.h"
 //
 
+// UI
+#include "UI/UI.h"
+//
+
+// Controller
+#include "Controller/GCameraController.h"
+//
+
 // STL
 #include <algorithm>
 #include <array>
@@ -46,8 +55,14 @@
 
 namespace Render {
 
+	// Static inits
+	VkClearColorValue App::s_BgColor = VkClearColorValue{ 0.07f, 0.07f, 0.07f, 1.0f };
+
+	//
+
 	void App::Run() {
 		Init();
+		InitGUI();
 		MainLoop();
 		Cleanup();
 	}
@@ -56,6 +71,7 @@ namespace Render {
 		Window* pWindow = new Window{ 1280, 720, "Fluid Sim" };
 		m_Device = new GDevice{ *pWindow };
 		m_Camera = new GCamera{};
+		m_CameraController = new GCameraController(pWindow, m_Camera);
 		
 		CreateSwapChain();
 		CreateImageViews();
@@ -79,35 +95,46 @@ namespace Render {
 		// For now objects added in a hacky way
 		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj" });
 		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj" });
-		m_Objects[0]->tranform.translate.x += 4;
+		m_Objects[0]->tranform.translate.x += 2;
 
 	}
 
+	void App::InitGUI() {
+		UI::Begin(m_Device, m_VkInstance, m_RenderPass, m_DescPool, s_MaxFramesInFlight);
+	}
+
 	void App::MainLoop() {
-
-		// For now this hacky animation is included
-
-		float z = 1.0f;
-
-		float modi = 0.0f;
-		float modi2 = 0.0f;
+		
+		float modi = 1.0f;
+		static auto startTime = std::chrono::high_resolution_clock::now();
 		while (!m_Device->GetWindow()->ShouldClose()) {
+			auto		currentTime = std::chrono::high_resolution_clock::now();
+			float		deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+			startTime = currentTime;
+
+			Time::_SetDeltaTime(deltaTime);
+
 			DrawFrame();
 			glfwPollEvents();
 
-			//m_Camera->SetOrthoProjection(10.0f, 10.0f, 10.0f, 10.f, 0.1f, 1000.0f);
-			m_Camera->SetPerspProjection(glm::radians(50.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 100.0f);
-			m_Camera->SetViewTrg(glm::vec3{ 3.0f, modi2, modi }, glm::vec3{ 0.0f });
-			//m_Camera->SetViewTrg(glm::vec3{ 0.0f, 0.0f, -110.0f }, glm::vec3{ 0.0f, 0.0f, 0.0f });
+			m_CameraController->Update();			
 
-			modi += 0.001f;
-			modi2 += 0.005f;
+			m_Camera->SetPerspProjection(glm::radians(70.0f), static_cast<float>(m_SwapChainExtent.width) / static_cast<float>(m_SwapChainExtent.height), 0.1f, 1000.0f);
+			//m_Camera->SetViewTrg(glm::vec3{ 3.0f, 6.0f + modi, 10.0f }, glm::vec3{ 0.0f });
+
+			//m_Camera->SetViewTrg(glm::vec3{ UI::cameraPos[0], UI::cameraPos[1], UI::cameraPos[2] }, glm::vec3{1.0f});
+
+
+			std::cout << "FPS: " <<  static_cast<int>(1.0f / deltaTime) << "\n";
+			modi += 3.0f * deltaTime;
 		}
 
 		vkDeviceWaitIdle(m_Device->GetDevice());
 	}
 
 	void App::Cleanup() {
+		UI::End();
+
 		CleanupSwapChain();
 		
 		vkDestroySampler(m_Device->GetDevice(), m_TextureSampler, nullptr);
@@ -148,6 +175,8 @@ namespace Render {
 			vkDestroyImageView(m_Device->GetDevice(), elem, nullptr);
 
 		delete m_Device;
+		delete m_Camera;
+		delete m_CameraController;
 	}
 
 	void App::CreateSwapChain() {
@@ -155,8 +184,7 @@ namespace Render {
 
 		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 		VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
-		
-		// NOTE: LOOK HERE FOR 3D LATER
+
 		VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
 
 		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
@@ -209,7 +237,7 @@ namespace Render {
 		imgViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		imgViewInfo.image = img;
 		imgViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		imgViewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+		imgViewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
 
 		imgViewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
 		imgViewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -769,13 +797,14 @@ namespace Render {
 		descPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		descPoolSizes[0].descriptorCount = static_cast<uint32_t>(s_MaxFramesInFlight);
 		descPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descPoolSizes[1].descriptorCount = static_cast<uint32_t>(s_MaxFramesInFlight);
+		descPoolSizes[1].descriptorCount = static_cast<uint32_t>(s_MaxFramesInFlight) * 2;
 
 		VkDescriptorPoolCreateInfo descPoolInfo{};
 		descPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		descPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 		descPoolInfo.poolSizeCount = static_cast<uint32_t>(descPoolSizes.size());
 		descPoolInfo.pPoolSizes = descPoolSizes.data();
-		descPoolInfo.maxSets = static_cast<uint32_t>(s_MaxFramesInFlight);
+		descPoolInfo.maxSets = static_cast<uint32_t>(s_MaxFramesInFlight) * 2;
 
 		if (vkCreateDescriptorPool(m_Device->GetDevice(), &descPoolInfo, nullptr, &m_DescPool) != VK_SUCCESS)
 			throw std::runtime_error("Failed to create descriptor pool!");
@@ -880,6 +909,7 @@ namespace Render {
 	void App::RecCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index) {
 		VkCommandBufferBeginInfo commandBufferBeginInfo{};
 		commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 		if (vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo) != VK_SUCCESS)
 			throw std::runtime_error("Failed to begin recording command buffer!");
@@ -892,7 +922,7 @@ namespace Render {
 		renderPassBeginInfo.renderArea.extent = m_SwapChainExtent;
 
 		std::array<VkClearValue, 2> clearVals{};
-		clearVals[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+		clearVals[0].color = s_BgColor;
 		clearVals[1].depthStencil = { 1.0f, 0 };
 
 		renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearVals.size());
@@ -921,7 +951,9 @@ namespace Render {
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-
+		
+		UI::Main(commandBuffer);
+		
 		vkCmdEndRenderPass(commandBuffer);
 
 
@@ -943,11 +975,10 @@ namespace Render {
 			throw::std::runtime_error("Failed to acquire swap chain image");
 
 		UpdateUniformBuffer(m_CurrentFrame);
+		RecCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
 
 		vkResetFences(m_Device->GetDevice(), 1, &m_IFFences[m_CurrentFrame]);
-		vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
-
-		RecCommandBuffer(m_CommandBuffers[m_CurrentFrame], imgInd);
+		//vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
 
 		VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
 		VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
@@ -989,10 +1020,6 @@ namespace Render {
 	}
 
 	void App::UpdateUniformBuffer(uint32_t currentFrame) {
-		static auto startTime	= std::chrono::high_resolution_clock::now();
-		auto		currentTime	= std::chrono::high_resolution_clock::now();
-		float		deltaTime	= std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-	
 		UniformBufferObject uniBuff{};
 		uniBuff.model = m_Camera->GetInvViewMat();
 		uniBuff.view = m_Camera->GetViewMat();
@@ -1019,16 +1046,20 @@ namespace Render {
 
 	VkSurfaceFormatKHR App::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
 		for (const auto& elem : availableFormats)
-			if (elem.format == VK_FORMAT_R8G8B8A8_SRGB && elem.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			if (elem.format == VK_FORMAT_R8G8B8A8_UNORM && elem.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 				return elem;
 
 		return availableFormats[0];
 	}
 
 	VkPresentModeKHR App::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
-		for (const auto& elem : availablePresentModes)
-			if (elem == VK_PRESENT_MODE_MAILBOX_KHR)
+		for (const auto& elem : availablePresentModes) {
+			if (elem == VK_PRESENT_MODE_MAILBOX_KHR && s_VSync)
 				return elem;
+
+			if (elem == VK_PRESENT_MODE_IMMEDIATE_KHR && !s_VSync)
+				return elem;
+		}
 
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
@@ -1079,49 +1110,4 @@ namespace Render {
 			elem->m_Model->Draw(commBuffer);
 		}
 	}
-
-	//void App::LoadModel(const char* path, bool hasTex) {
-	//	tinyobj::attrib_t att;
-	//	std::vector<tinyobj::shape_t> shapes;
-	//	std::vector<tinyobj::material_t> materials;
-	//	std::string warn;
-	//	std::string err;
-
-	//	if (!tinyobj::LoadObj(&att, &shapes, &materials, &warn, &err, path))
-	//		throw std::runtime_error(warn + err);
-
-	//	std::vector<Vertex> modelVertices;
-	//	std::vector<uint32_t> modelIndices;
-
-	//	for (const auto& elem : shapes) {
-	//		for (const auto& index : elem.mesh.indices) {
-	//			Vertex vert{};
-
-	//			vert.pos = {
-	//				  att.vertices[3 * index.vertex_index + 0]
-	//				, att.vertices[3 * index.vertex_index + 1]
-	//				, att.vertices[3 * index.vertex_index + 2]
-	//			};
-
-	//			vert.uv = {
-	//				  att.texcoords[2 * index.texcoord_index + 0]
-	//				, 1.0f - att.texcoords[2 * index.texcoord_index + 1]
-	//			};
-
-	//			vert.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-	//			modelVertices.push_back(vert);
-	//			modelIndices.push_back((uint32_t)m_Indices.size());
-	//			//m_Vertices.push_back(vert);
-	//			//m_Indices.push_back((uint32_t)m_Indices.size());
-	//		}
-	//	}
-
-	//	GModel model = std::make_shared<GModel>(device, vertices, indices);
-	//	GObject object = GObject::CreateGObject();
-	//	object.model = model;
-	//	object.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//	object.transfrom.translate.x = 1.0f;
-	//}
-
 }

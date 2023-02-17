@@ -18,9 +18,12 @@ namespace Render {
 
 	void GCamera::SetPerspProjection(float yFOV, float aspectRatio, float near, float far) {
 		assert(glm::abs(aspectRatio - std::numeric_limits<float>::epsilon()) > 0.0f);
-		m_ProjMat = glm::mat4{ 1.0f };
-		m_ProjMat[0][0] = 1.0f / (aspectRatio - tan(yFOV / 2.0f));
-		m_ProjMat[1][1] = 1.0f / (tan(yFOV / 2.0f));
+
+		const float halfFOVTg = tan(yFOV / 20.f);
+
+		m_ProjMat = glm::mat4{ 0.0f };
+		m_ProjMat[0][0] = 1.0f / (aspectRatio * halfFOVTg);
+		m_ProjMat[1][1] = 1.0f / (halfFOVTg);
 		m_ProjMat[2][2] = far / (far - near);
 		m_ProjMat[2][3] = 1.0f;
 		m_ProjMat[3][2] = -(far * near) / (far - near);
@@ -45,7 +48,7 @@ namespace Render {
 		m_ViewMat[3][1] = -glm::dot(v, pos);
 		m_ViewMat[3][2] = -glm::dot(w, pos);
 
-		m_InvViewMat = glm::mat4{ 1.0f };
+		m_InvViewMat = glm::mat4{ 1.f };
 		m_InvViewMat[0][0] = u.x;
 		m_InvViewMat[0][1] = u.y;
 		m_InvViewMat[0][2] = u.z;
@@ -72,19 +75,19 @@ namespace Render {
 		const float cosz = glm::cos(rot.z);
 		const float sinz = glm::sin(rot.z);
 
-		const glm::vec3 u{
+		const glm::vec3 u {
 			  (cosy * cosz + siny * sinx * sinz)
 			, (cosx * sinz)
 			, (cosy * sinx * sinz - cosz * siny)
 		};
 
-		const glm::vec3 v{
+		const glm::vec3 v {
 			  (cosz * siny * sinx - cosy * sinz)
 			, (cosx * cosz)
 			, (cosy * cosz * sinx + siny * sinz)
 		};
 
-		const glm::vec3 w{
+		const glm::vec3 w {
 			  (cosx * siny)
 			, (-sinx)
 			, (cosy * cosx)

@@ -4,14 +4,17 @@
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Controller">
+      <UniqueIdentifier>{01077332-6D92-E0F6-76A3-63EBE2AD3CF7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Display">
       <UniqueIdentifier>{9329308D-7F8C-BF31-2812-F8E714548BB4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Entities">
-      <UniqueIdentifier>{A26035A2-0E21-B1D8-D75B-FA5543DBF5B4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Graphics">
       <UniqueIdentifier>{2E10C882-9AD0-43B9-630B-8D36CF8A8895}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\UI">
+      <UniqueIdentifier>{9B407134-0720-F0CF-1038-7BA67C965631}</UniqueIdentifier>
     </Filter>
     <Filter Include="Window">
       <UniqueIdentifier>{3DEA79DA-298C-A4B0-1247-B804FE872B01}</UniqueIdentifier>
@@ -22,16 +25,34 @@
     <ClInclude Include="src\Core\App.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Controller\GCameraController.h">
+      <Filter>Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Controller\GController.h">
+      <Filter>Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Display\GBuffer.h">
+      <Filter>Core\Display</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Display\GCamera.h">
       <Filter>Core\Display</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Display\GCameraEnums.h">
       <Filter>Core\Display</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Display\GColor.h">
+      <Filter>Core\Display</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Display\GDevice.h">
       <Filter>Core\Display</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Display\GModel.h">
+      <Filter>Core\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Display\GObject.h">
+      <Filter>Core\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Display\GRender.h">
       <Filter>Core\Display</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Extra.h">
@@ -49,28 +70,47 @@
     <ClInclude Include="src\Core\Render.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Time.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\UI\UI.h">
+      <Filter>Core\UI</Filter>
+    </ClInclude>
     <ClInclude Include="src\Defs.h" />
     <ClInclude Include="src\Window\Window.h">
       <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Display\GBuffer.h">
-      <Filter>Core\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Display\GObject.h" />
-    <ClInclude Include="src\Core\Display\GColor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Controller\GCameraController.cpp">
+      <Filter>Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Controller\GController.cpp">
+      <Filter>Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Display\GBuffer.cpp">
+      <Filter>Core\Display</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Display\GCamera.cpp">
+      <Filter>Core\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Display\GColor.cpp">
       <Filter>Core\Display</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Display\GDevice.cpp">
       <Filter>Core\Display</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Display\GModel.cpp">
+      <Filter>Core\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Display\GObject.cpp">
+      <Filter>Core\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Display\GRender.cpp">
       <Filter>Core\Display</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Extra.cpp">
@@ -82,18 +122,13 @@
     <ClCompile Include="src\Core\Helper.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\UI\UI.cpp">
+      <Filter>Core\UI</Filter>
+    </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Display\GBuffer.cpp">
-      <Filter>Core\Display</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Display\GObject.cpp" />
-    <ClCompile Include="src\Core\Display\GColor.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Shaders\shader.frag" />
-    <None Include="src\Shaders\shader.vert" />
+    <ClCompile Include="src\Core\Time.cpp" />
   </ItemGroup>
 </Project>

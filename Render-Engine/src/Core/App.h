@@ -17,6 +17,7 @@ namespace Render {
   
 	class GObject;
 	class GCamera;
+	class GCameraController;
 
 	struct QFamilyInd;
 	struct SwapChainSupportDetails;
@@ -27,6 +28,7 @@ namespace Render {
 
 	private:
 		void Init();
+		void InitGUI();
 		void MainLoop();
 		void Cleanup();
 
@@ -107,17 +109,20 @@ namespace Render {
 
 		void ClearVertices();
 
-		void LoadModel(const char* path, bool hasTex = true);
-
 		// Draw
 		void DrawObjects(VkCommandBuffer& commBuffer, VkPipelineLayout& pipelineLayout, VkDescriptorSet& descSet);
 
 	private_var:
 		static const uint8_t s_MaxFramesInFlight = 2;
+		static const bool s_VSync = false;
+
+		static VkClearColorValue s_BgColor;
+
 		uint32_t m_CurrentFrame = 0;
 
 		GDevice* m_Device;
 		GCamera* m_Camera;
+		GCameraController* m_CameraController;
 
 		VkInstance m_VkInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
@@ -168,7 +173,6 @@ namespace Render {
 
 		// Draw & Models
 		std::vector<GObject*> m_Objects;
-		
 	};
 
 }
