@@ -2,7 +2,7 @@
 #include "UI.h"
 
 // Core
-#include "../Display/GDevice.h"
+#include <Core/Display/GDevice.h>
 //
 
 // ImGUI

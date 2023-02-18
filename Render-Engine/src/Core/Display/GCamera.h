@@ -1,6 +1,9 @@
 #pragma once
 
+// Core
 #include <Defs.h>
+//
+
 // GLM
 #include <glm/mat4x4.hpp>
 //

@@ -1,8 +1,13 @@
 #pragma once
 
-#include "../../Defs.h"
-#include "../Graphics/Vertex.h"
+// Core
+#include <Defs.h>
+#include <Core/Graphics/Vertex.h>
+//
+
+// Vulkan
 #include <vulkan/vulkan_core.h>
+//
 
 namespace Render {
 

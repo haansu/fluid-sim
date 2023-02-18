@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "GCameraController.h"
 
-#include "../../Core.h"
-#include "../../Window/Window.h"
-#include "../Display/GCamera.h"
+// Core
+#include <Core.h>
+#include <Core/Display/GCamera.h>
 #include <Core/Time.h>
+#include <Window/Window.h>
+//
 
 namespace Render {
 	GCameraController::GCameraController(Window* window, GCamera* camera) {
@@ -29,18 +31,18 @@ namespace Render {
 		int keyStateLShift = glfwGetKey(m_PWindow->GetGLFWwindowPointer(), GLFW_KEY_LEFT_SHIFT);
 		int keyStateMouseLeft = glfwGetKey(m_PWindow->GetGLFWwindowPointer(), GLFW_MOUSE_BUTTON_LEFT);
 
-		float val = 1.0f * Time::DeltaTime();
+		float val = 5.0f * Time::DeltaTime();
 		if (keyStateLShift == GLFW_PRESS)
-			val = 2.0f * Time::DeltaTime();
+			val = 10.0f * Time::DeltaTime();
 
 		if (keyStateW == GLFW_PRESS)
 			velocity.x = val;
 		if (keyStateA == GLFW_PRESS)
-			velocity.y = -val;
+			velocity.y = val;
 		if (keyStateS == GLFW_PRESS)
 			velocity.x = -val;
 		if (keyStateD == GLFW_PRESS)
-			velocity.y = val;
+			velocity.y = -val;
 
 		
 		if (   m_CursorPos.x < m_PWindow->GetWidth()

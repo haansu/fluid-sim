@@ -1,9 +1,11 @@
 #pragma once
 
-#include "../../Defs.h"
+// Core
 #include "GModel.h"
-#include "../Extra.h"
 #include "GColor.h"
+#include <Defs.h>
+#include <Core/Extra.h>
+//
 
 namespace Render {
 

@@ -1,8 +1,13 @@
 #include "pch.h"
 #include "Extra.h"
-#include "../Core.h"
 
+// Core
+#include <Core.h>
+//
+
+// STL
 #include <vector>
+//
 
 namespace Render {
 

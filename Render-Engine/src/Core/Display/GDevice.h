@@ -4,15 +4,16 @@
 #include <vulkan/vulkan_core.h>
 //
 
+// Core
+#include <Defs.h>
+#include <Window/Window.h>
+#include <Core.h>
+#include <Core/Extra.h>
+//
+
 // STL
 #include <vector>
 //
-
-#include "../../Defs.h"
-#include "../../Window/Window.h"
-#include "../Extra.h"
-#include "../../Core.h"
-
 
 namespace Render {
 
