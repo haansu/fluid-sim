@@ -1,6 +1,10 @@
 #pragma once
 #include "pch.h"
-#include "Defs.h"
+
+//
+// Hack for now
+//
+#define ENGINE_API __declspec(dllexport)
 
 namespace eng {
 	ENGINE_API int Run() {

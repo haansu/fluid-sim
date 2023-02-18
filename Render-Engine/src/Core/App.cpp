@@ -4,9 +4,9 @@
 #include "App.h"
 #include "Extra.h"
 #include "Helper.h"
+#include <Core.h>
 #include <Core/Time.h>
-#include "../Core.h"
-#include "../Window/Window.h"
+#include <Window/Window.h>
 //
 
 // GLM

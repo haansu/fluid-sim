@@ -1,9 +1,17 @@
 #pragma once
 
-#include <vector>
+// Vulkan
 #include <vulkan/vulkan_core.h>
+//
+
+// STL
 #include <optional>
+#include <vector>
+//
+
+// GLM
 #include <glm/mat4x4.hpp>
+//
 
 namespace Render {
 
