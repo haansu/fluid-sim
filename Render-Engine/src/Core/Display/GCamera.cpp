@@ -2,7 +2,9 @@
 #include "GCamera.h"
 #include "GCameraEnums.h"
 
-#include "../../Core.h"
+// Core
+#include <Core.h>
+//
 
 namespace Render {
 

@@ -1,8 +1,8 @@
 #pragma once
 
-// Proprietary
-#include "../../Defs.h"
+// Core
 #include "GModel.h"
+#include <Defs.h>
 //
 
 // STL

@@ -1,9 +1,14 @@
 #include "pch.h"
-
-#include "../Defs.h"
-#include "../Core.h"
 #include "Window.h"
+
+// Core
+#include <Core.h>
+#include <Defs.h>
+//
+
+// STL
 #include <string>
+//
 
 namespace Render {
 

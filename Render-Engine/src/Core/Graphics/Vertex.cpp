@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "Vertex.h"
+
+// Vulkan
 #include <vulkan/vulkan.h>
+//
 
 VkVertexInputBindingDescription Vertex::GetBindingDescription() {
 	VkVertexInputBindingDescription bindingDescription{};

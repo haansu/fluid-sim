@@ -1,6 +1,8 @@
 #pragma once
 
+// GLM
 #include <glm/vec4.hpp>
+//
 
 namespace Render {
 	class GColor {

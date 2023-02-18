@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "GObject.h"
-#include "../Extra.h"
+
+// Core
+#include <Core/Extra.h>
+//
 
 namespace Render {
 	

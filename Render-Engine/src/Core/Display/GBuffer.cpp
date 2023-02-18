@@ -2,7 +2,7 @@
 #include "GBuffer.h"
 #include "GDevice.h"
 
-#include "../../Core.h"
+#include <Core.h>
 
 namespace Render {
 

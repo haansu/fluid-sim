@@ -1,10 +1,15 @@
 #pragma once
+
+// GLM
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+//
 
+// STL
 #include <vector>
 #include <array>
+//
 
 struct VkVertexInputBindingDescription;
 struct VkVertexInputAttributeDescription;

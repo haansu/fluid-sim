@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Defs.h"
-#include "Core.h"
-#include "Window/Window.h"
+// Core
 #include "App.h"
+#include <Core.h>
+#include <Defs.h>
+#include <Window/Window.h>
+//
 
 namespace Render {
 
