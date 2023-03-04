@@ -1,5 +1,4 @@
 # Waterfall - Fluid Simulator
 
-Textured - 2 triangle surface:
-
-![alt text](https://drive.google.com/uc?export=download&id=1y0F4LRSf-Bn8hVQqkCemAuOVpV0eQQAt)
+Diffuse shaded model without texture
+![alt text](https://lh3.googleusercontent.com/Pxf4sdlh2-08jGwmfq0DP02GLhJovfiYjqVbkRm0z29Gp0keYv4WJSM08hwJEpzaDi0=w2400)
