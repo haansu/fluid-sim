@@ -21,9 +21,10 @@ namespace Render {
 		ProjectionMethodType GetProjectionMethodType();
 		bool IsPerspective();
 
-		void SetViewDir(glm::vec3 pos, glm::vec3 dir);
+		void SetViewDir(glm::vec3 pos, glm::vec3 dir, glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f));
 		void SetViewTrg(glm::vec3 pos, glm::vec3 trg);
 		void SetViewVec(glm::vec3 pos, glm::vec3 rot);
+		void SetViewVec(glm::vec3 right, glm::vec3 up, glm::vec3 forward);
 
 		const glm::mat4& GetProjMat() { return m_ProjMat; }
 		const glm::mat4& GetViewMat() { return m_ViewMat; }
@@ -31,8 +32,6 @@ namespace Render {
 		const glm::vec3 GetPosVec() { return glm::vec3(m_InvViewMat[3]); }
 
 	private:
-		glm::vec3 m_Up = glm::vec3(0.0f, 0.0f, 1.0f);
-
 		glm::mat4 m_ProjMat{ 1.0f };
 		glm::mat4 m_ViewMat{ 1.0f };
 		glm::mat4 m_InvViewMat{ 1.0f };

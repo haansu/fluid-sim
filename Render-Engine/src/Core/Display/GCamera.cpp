@@ -31,9 +31,9 @@ namespace Render {
 		m_ProjMat[3][2] = -(far * near) / (far - near);
 	}
 
-	void GCamera::SetViewDir(glm::vec3 pos, glm::vec3 dir) {
+	void GCamera::SetViewDir(glm::vec3 pos, glm::vec3 dir, glm::vec3 up) {
 		const glm::vec3 w{ glm::normalize(dir) };
-		const glm::vec3 u{ glm::normalize(glm::cross(w, m_Up)) };
+		const glm::vec3 u{ glm::normalize(glm::cross(w, up)) };
 		const glm::vec3 v{ glm::cross(w, u) };
 
 		m_ViewMat = glm::mat4{ 1.0f };
@@ -123,8 +123,15 @@ namespace Render {
 		m_InvViewMat[3][1] = pos.y;
 		m_InvViewMat[3][2] = pos.z;
 	}
+	void GCamera::SetViewVec(glm::vec3 right, glm::vec3 up, glm::vec3 forward) {
+		m_ViewMat[0] = glm::vec4(right, 0.0f);
+		m_ViewMat[1] = glm::vec4(up, 0.0f);
+		m_ViewMat[2] = glm::vec4(forward, 0.0f);
+	}
 
+	
 	ProjectionMethodType GCamera::GetProjectionMethodType() { return m_ProjectionMethodType; }
+	
 	bool GCamera::IsPerspective() {
 		return (m_ProjectionMethodType == ProjectionMethodType::Perspective) ? true : false;
 	}

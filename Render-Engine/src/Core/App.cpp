@@ -72,7 +72,7 @@ namespace Render {
 		m_Device = new GDevice{ *pWindow };
 		m_Camera = new GCamera{};
 		m_CameraController = new GCameraController(pWindow, m_Camera);
-		
+
 		CreateSwapChain();
 		CreateImageViews();
 		CreateRenderPass();
@@ -81,10 +81,11 @@ namespace Render {
 
 		CreateDepthRes();
 		CreateFrameBuffers();
-
-		CreateTextureImage();
-		CreateTextureImageView();
-		CreateTextureSampler();
+		
+		// TEXTURE DISABLE
+		//CreateTextureImage();
+		//CreateTextureImageView();
+		//CreateTextureSampler();
 
 		CreateUniformBuffers();
 		CreateCommandBuffers();
@@ -93,9 +94,10 @@ namespace Render {
 		CreateSyncObjects();
 
 		// For now objects added in a hacky way
-		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj" });
-		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj" });
-		m_Objects[0]->tranform.translate.x += 2;
+		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f} });
+		m_Objects.push_back(new GObject{ *m_Device, "models/desert_city.obj", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f} });
+		m_Objects[1]->transform.rotate = glm::vec3(glm::radians(90.0f), 0.0f, 0.0f);
+		m_Objects[0]->transform.translate.x += 2;
 
 	}
 
@@ -104,15 +106,14 @@ namespace Render {
 	}
 
 	void App::MainLoop() {
-		
-		float modi = 1.0f;
 		static auto startTime = std::chrono::high_resolution_clock::now();
 		while (!m_Device->GetWindow()->ShouldClose()) {
 			auto		currentTime = std::chrono::high_resolution_clock::now();
 			float		deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 			startTime = currentTime;
-
 			Time::_SetDeltaTime(deltaTime);
+
+			UI::fps = static_cast<int>(1.0f / deltaTime);
 
 			DrawFrame();
 			glfwPollEvents();
@@ -120,13 +121,9 @@ namespace Render {
 			m_CameraController->Update();			
 
 			m_Camera->SetPerspProjection(glm::radians(70.0f), static_cast<float>(m_SwapChainExtent.width) / static_cast<float>(m_SwapChainExtent.height), 0.1f, 1000.0f);
-			//m_Camera->SetViewTrg(glm::vec3{ 3.0f, 6.0f + modi, 10.0f }, glm::vec3{ 0.0f });
 
-			//m_Camera->SetViewTrg(glm::vec3{ UI::cameraPos[0], UI::cameraPos[1], UI::cameraPos[2] }, glm::vec3{1.0f});
-
-
-			std::cout << "FPS: " <<  static_cast<int>(1.0f / deltaTime) << "\n";
-			modi += 3.0f * deltaTime;
+			UI::canvasWidth = m_SwapChainExtent.width;
+			UI::canvasHeight = m_SwapChainExtent.height;
 		}
 
 		vkDeviceWaitIdle(m_Device->GetDevice());
@@ -557,7 +554,7 @@ namespace Render {
 
 	void App::CreateTextureImage() {
 		int width, height, channels;
-		stbi_uc* pixels = stbi_load("textures/room.png", &width, &height, &channels, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load("textures/texture_color.jpg", &width, &height, &channels, STBI_rgb_alpha);
 		
 		VkDeviceSize imgSize = (uint64_t)width * height * 4;
 
@@ -831,8 +828,10 @@ namespace Render {
 
 			VkDescriptorImageInfo imgInfo{};
 			imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imgInfo.imageView = m_TextureImgView;
-			imgInfo.sampler = m_TextureSampler;
+			
+			// TEXTURES DISABLED
+			//imgInfo.imageView = m_TextureImgView;
+			//imgInfo.sampler = m_TextureSampler;
 
 			std::array<VkWriteDescriptorSet, 2> descWrites{};
 			descWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1025,6 +1024,12 @@ namespace Render {
 		uniBuff.view = m_Camera->GetViewMat();
 		uniBuff.proj = m_Camera->GetProjMat();
 
+		// TODO: Make a light class
+		uniBuff.lightDir = glm::vec4(0.3f, 0.2f, 1.0f, 1.0f);
+		uniBuff.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		uniBuff.lightAmbient = glm::vec4(0.4f, 0.4f, 0.4f, 0.4f);
+		uniBuff.lightDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 0.5f);
+
 		void* data;
 		vkMapMemory(m_Device->GetDevice(), m_UniformBuffersMem[currentFrame], 0, sizeof(uniBuff), 0, &data);
 		memcpy(data, &uniBuff, sizeof(uniBuff));
@@ -1094,8 +1099,8 @@ namespace Render {
 			if (!elem)
 				continue;
 
-			push.modelMatrix = elem->tranform.Model();
-			push.normalMatrix = elem->tranform.Normal();
+			push.modelMatrix = elem->transform.Model();
+			push.normalMatrix = elem->transform.Normal();
 
 			vkCmdPushConstants(
 				  commBuffer

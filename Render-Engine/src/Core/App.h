@@ -64,8 +64,6 @@ namespace Render {
 		void CreateTextureImageView();
 		void CreateTextureSampler();
 
-		void CreateVertexBuffers();
-		void CreateIndexBuffer();
 		void CreateUniformBuffers();
 		void CreateDescriptorPool();
 		void CreateDescriptorSets();

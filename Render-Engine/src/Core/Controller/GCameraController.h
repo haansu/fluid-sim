@@ -7,6 +7,7 @@
 // GLM
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
 //
 
 namespace Render {
@@ -21,14 +22,19 @@ namespace Render {
 		void Update();
 
 	private:
-		void SetPos();
-		void SetRot();
+		void UpdateTransform();
 
 		Window* m_PWindow = nullptr;
 		GCamera* m_PGCamera = nullptr;
 
-		glm::vec3 m_CurrentPos{1.0f};
+		glm::vec3 m_Position{ 0.0f };
+		glm::vec3 m_Rotation{ 0.0f, 1.0f, 0.0f };
+		glm::vec3 m_PitchAxis{ 1.0f, 0.0f, 0.0f };
+
+		glm::vec3 m_Forward{ 0.0f, 1.0f, 0.0f };
+
 		glm::ivec2 m_CursorPos{ 0 };
+		glm::ivec2 m_PrevCursorPos{ 0 };
 	};
 
 }

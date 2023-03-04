@@ -14,4 +14,3 @@
 // Object will not be able to be moved
 #define NO_MOVE(CLASS_NAME) CLASS_NAME(CLASS_NAME&&) = delete;\
 							CLASS_NAME& operator=(CLASS_NAME&&) = delete;
-							
