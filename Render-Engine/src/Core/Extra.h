@@ -57,7 +57,6 @@ namespace Render {
 	};
 
 	struct PushConstantData {
-
 		glm::mat4 modelMatrix{ 1.0f };
 		glm::mat4 normalMatrix{ 1.0f };
 	};

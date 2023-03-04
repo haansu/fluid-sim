@@ -131,4 +131,8 @@
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Core\Time.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Shaders\shader.frag" />
+    <None Include="src\Shaders\shader.vert" />
+  </ItemGroup>
 </Project>

@@ -11,15 +11,15 @@ namespace Render {
 
 	class GObject {
 	public:
-		GObject(GDevice& device, const std::string& modelPath) {
-			m_Model = new GModel(device, modelPath);
+		GObject(GDevice& device, const std::string& modelPath, glm::vec4 color) {
+			m_Model = new GModel(device, modelPath, color);
 		}
 
 		~GObject() {
 			delete m_Model;
 		}
 	public_var:
-		Transform tranform{};
+		Transform transform{};
 		GModel* m_Model;
 		GColor m_Color;
 	private:

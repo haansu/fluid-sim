@@ -21,15 +21,28 @@
 
 //
 
+// STL
+#include <string>
+#include <sstream>
+#include <iomanip>
+//
+
 namespace Render {
 
 	//
-	float UI::cameraPos[3] = { 0.0f, 0.0f, 0.0f };
+	float UI::cameraPosition[3] = { 0.0f, 0.0f, 0.0f };
+	float UI::cameraRotation[3] = { 0.0f, 0.0f, 0.0f };
+	float UI::cameraVelocity[3] = { 0.0f, 0.0f, 0.0f };
+	int UI::cursorDelta[2] = { 0, 0 };
+	uint32_t UI::fps = 0;
+	int UI::canvasWidth = 0;
+	int UI::canvasHeight = 0;
+
 
 
 	// Initialize ImGUI for Vulkan
 	void UI::Begin(
-		  GDevice* device
+		GDevice* device
 		, VkInstance& instance
 		, VkRenderPass& renderPass
 		, VkDescriptorPool& descPool,
@@ -72,6 +85,7 @@ namespace Render {
 		ImGui::NewFrame();
 
 		Camera();
+		FPS();
 
 		ImGui::Render();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commBuffer);
@@ -79,10 +93,16 @@ namespace Render {
 
 	void UI::Camera() {
 		ImGui::Begin("Camera");
+		ImGui::Text("Position: X: %f Y: %f Z: %f", cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+		ImGui::Text("Rotation: X: %f Y: %f Z: %f", cameraRotation[0], cameraRotation[1], cameraRotation[2]);
+		ImGui::Text("Velocity: X: %f Y: %f Z: %f", cameraVelocity[0], cameraVelocity[1], cameraVelocity[2]);
+		ImGui::Text("CurDelta: X: %d Y: %d", cursorDelta[0], cursorDelta[1]);
+		ImGui::End();
+	}
 
-		//static float cameraPos[3];
-		ImGui::SliderFloat3("Camera XYZ", cameraPos, -100.0f, 100.0f);
-
+	void UI::FPS() {
+		ImGui::Begin("FPS");
+		ImGui::Text("%d", fps);
 		ImGui::End();
 	}
 

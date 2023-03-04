@@ -30,7 +30,17 @@ namespace Render {
 		// Camera controls
 		static void Camera();
 
-		static float cameraPos[3];
+		// FPS
+		static void FPS();
+
+		static uint32_t fps;
+		static float cameraPosition[3];
+		static float cameraRotation[3];
+		static float cameraVelocity[3];
+		static int cursorDelta[2];
+
+		static int canvasWidth;
+		static int canvasHeight;
 
 	};
 

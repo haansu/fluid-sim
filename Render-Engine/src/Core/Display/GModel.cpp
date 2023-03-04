@@ -16,18 +16,18 @@
 
 namespace Render {
 
-	GModel::GModel(GDevice& device, const std::string& modelPath)
+	GModel::GModel(GDevice& device, const std::string& modelPath, glm::vec4 color)
 		: m_VertexBuffer(new GBuffer()), m_IndexBuffer(new GBuffer()) {
 
 		m_Device = &device;
-		LoadModel(modelPath);
+		LoadModel(modelPath, color);
 		CreateVertexBuffers(m_Vertices);
 		CreateIndexBuffers(m_Indices);
 	}
 
 	GModel::~GModel() {};
 
-	void GModel::LoadModel(const std::string& path) {
+	void GModel::LoadModel(const std::string& path, glm::vec4 color) {
 		tinyobj::attrib_t att;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
@@ -36,6 +36,8 @@ namespace Render {
 
 		if (!tinyobj::LoadObj(&att, &shapes, &materials, &warn, &err, path.c_str()))
 			throw std::runtime_error(warn + err);
+
+		// TODO: Unique indices for better performance
 
 		for (const auto& elem : shapes) {
 			for (const auto& index : elem.mesh.indices) {
@@ -52,7 +54,13 @@ namespace Render {
 					, 1.0f - att.texcoords[2 * index.texcoord_index + 1]
 				};
 
-				vert.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+				vert.color = color;
+
+				vert.normal = {
+					  att.normals[3 * index.normal_index + 0]
+					, att.normals[3 * index.normal_index + 1]
+					, att.normals[3 * index.normal_index + 2]
+				};
 
 				m_Vertices.push_back(vert);
 				m_Indices.push_back((uint32_t)m_Indices.size());

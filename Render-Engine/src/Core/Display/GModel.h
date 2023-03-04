@@ -9,6 +9,10 @@
 #include <vulkan/vulkan_core.h>
 //
 
+// GLM
+#include <glm/vec4.hpp>
+//
+
 namespace Render {
 
 	// Forward declare
@@ -19,10 +23,10 @@ namespace Render {
 	public:
 		NO_COPY(GModel);
 
-		GModel(GDevice& device, const std::string& modelPath);
+		GModel(GDevice& device, const std::string& modelPath, glm::vec4 color = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 		~GModel();
 
-		void LoadModel(const std::string& path);
+		void LoadModel(const std::string& path, glm::vec4 color);
 	
 		void Bind(VkCommandBuffer& commBuffer);
 		void Draw(VkCommandBuffer& commBuffer);
