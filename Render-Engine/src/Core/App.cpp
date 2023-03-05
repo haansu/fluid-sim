@@ -60,14 +60,14 @@ namespace Render {
 
 	//
 
-	void App::Run() {
-		Init();
+	void App::Run(std::function<void()> start, std::function<void()> update) {
+		Init(start);
 		InitGUI();
-		MainLoop();
+		MainLoop(update);
 		Cleanup();
 	}
 
-	void App::Init() {
+	void App::Init(std::function<void()> start) {
 		Window* pWindow = new Window{ 1280, 720, "Fluid Sim" };
 		m_Device = new GDevice{ *pWindow };
 		m_Camera = new GCamera{};
@@ -95,17 +95,18 @@ namespace Render {
 
 		// For now objects added in a hacky way
 		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f} });
-		m_Objects.push_back(new GObject{ *m_Device, "models/desert_city.obj", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f} });
+		m_Objects.push_back(new GObject{ *m_Device, "models/car.obj", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f} });
 		m_Objects[1]->transform.rotate = glm::vec3(glm::radians(90.0f), 0.0f, 0.0f);
 		m_Objects[0]->transform.translate.x += 2;
 
+		start();
 	}
 
 	void App::InitGUI() {
 		UI::Begin(m_Device, m_VkInstance, m_RenderPass, m_DescPool, s_MaxFramesInFlight);
 	}
 
-	void App::MainLoop() {
+	void App::MainLoop(std::function<void()> update) {
 		static auto startTime = std::chrono::high_resolution_clock::now();
 		while (!m_Device->GetWindow()->ShouldClose()) {
 			auto		currentTime = std::chrono::high_resolution_clock::now();
@@ -124,6 +125,8 @@ namespace Render {
 
 			UI::canvasWidth = m_SwapChainExtent.width;
 			UI::canvasHeight = m_SwapChainExtent.height;
+		
+			update();
 		}
 
 		vkDeviceWaitIdle(m_Device->GetDevice());

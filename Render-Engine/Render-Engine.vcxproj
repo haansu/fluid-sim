@@ -121,6 +121,8 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rnd\OScript.h" />
+    <ClInclude Include="src\Rnd\ORenderer.h" />
     <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\Controller\GCameraController.h" />
@@ -137,7 +139,6 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClInclude Include="src\Core\Graphics\UniformObject.h" />
     <ClInclude Include="src\Core\Graphics\Vertex.h" />
     <ClInclude Include="src\Core\Helper.h" />
-    <ClInclude Include="src\Core\Render.h" />
     <ClInclude Include="src\Core\Time.h" />
     <ClInclude Include="src\Core\UI\UI.h" />
     <ClInclude Include="src\Defs.h" />
@@ -145,6 +146,8 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Rnd\OScript.cpp" />
+    <ClCompile Include="src\Rnd\ORenderer.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Core\Controller\GCameraController.cpp" />
     <ClCompile Include="src\Core\Controller\GController.cpp" />

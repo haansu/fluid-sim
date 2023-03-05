@@ -11,6 +11,7 @@
 
 // STL
 #include <vector>
+#include <functional>
 //
 
 namespace Render {
@@ -30,12 +31,12 @@ namespace Render {
 
 	class App final {
 	public:
-		RENDER_API void Run();
+		void Run(std::function<void()> start, std::function<void()> update);
 
 	private:
-		void Init();
+		void Init(std::function<void()> start);
 		void InitGUI();
-		void MainLoop();
+		void MainLoop(std::function<void()> update);
 		void Cleanup();
 
 		void CreateSwapChain();

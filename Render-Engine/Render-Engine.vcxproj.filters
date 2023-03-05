@@ -67,9 +67,6 @@
     <ClInclude Include="src\Core\Helper.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Render.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Time.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -81,6 +78,8 @@
       <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Rnd\ORenderer.h" />
+    <ClInclude Include="src\Rnd\OScript.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp">
@@ -130,6 +129,8 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Core\Time.cpp" />
+    <ClCompile Include="src\Rnd\ORenderer.cpp" />
+    <ClCompile Include="src\Rnd\OScript.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Shaders\shader.frag" />
