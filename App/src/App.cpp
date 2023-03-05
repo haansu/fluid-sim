@@ -1,23 +1,17 @@
 #include <iostream>
 #include <Engine.h>
-#include <Core/Render.h>
+#include <Rnd/ORenderer.h>
+#include <Rnd/OScript.h>
 
 //
 //	ENTRY POINT
 //
 
 int main() {
-	
 	std::cout << "Version - a0.1\n";
 
-	try {
-		Render::Run();
-		eng::Run();
-	}
-	catch (const std::exception& e) {
-		std::cerr << e.what() << "\n";
-		return EXIT_FAILURE;
-	}
+	rnd::ORenderer* renderer = rnd::ORenderer::GetInstance();
+	int Err = renderer->Execute();
 	
-	return EXIT_SUCCESS;
+	return Err;
 }
