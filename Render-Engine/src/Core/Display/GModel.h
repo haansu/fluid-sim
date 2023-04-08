@@ -23,10 +23,10 @@ namespace Render {
 	public:
 		NO_COPY(GModel);
 
-		GModel(GDevice& device, const std::string& modelPath, glm::vec4 color = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+		GModel(GDevice& device, const std::string& modelPath);
 		~GModel();
 
-		void LoadModel(const std::string& path, glm::vec4 color);
+		void LoadModel(const std::string& path);
 	
 		void Bind(VkCommandBuffer& commBuffer);
 		void Draw(VkCommandBuffer& commBuffer);
@@ -49,7 +49,7 @@ namespace Render {
 		std::vector<Vertex> m_Vertices;
 		std::vector<uint32_t> m_Indices;
 
-		bool m_HasIndexBuffer = false;
+		bool m_HasIndexBuffer = true;
 	};
 
 }

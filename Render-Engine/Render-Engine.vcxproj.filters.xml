@@ -16,9 +16,6 @@
     <Filter Include="Core\UI">
       <UniqueIdentifier>{9B407134-0720-F0CF-1038-7BA67C965631}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rnd">
-      <UniqueIdentifier>{491E880B-B527-887C-3EA3-9E7CAAAB937C}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Window">
       <UniqueIdentifier>{3DEA79DA-298C-A4B0-1247-B804FE872B01}</UniqueIdentifier>
     </Filter>
@@ -70,35 +67,23 @@
     <ClInclude Include="src\Core\Helper.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Rnd\Time.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\UI\UI.h">
       <Filter>Core\UI</Filter>
     </ClInclude>
     <ClInclude Include="src\Defs.h" />
-    <ClInclude Include="src\Rnd\DeltaTime.h">
-      <Filter>Rnd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rnd\Entity.h">
-      <Filter>Rnd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rnd\ORenderer.h">
-      <Filter>Rnd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rnd\OScript.h">
-      <Filter>Rnd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rnd\ObjectSettings.h">
-      <Filter>Rnd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rnd\Time.h">
-      <Filter>Rnd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rnd\Transform.h">
-      <Filter>Rnd</Filter>
-    </ClInclude>
     <ClInclude Include="src\Window\Window.h">
       <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Rnd\ORenderer.h" />
+    <ClInclude Include="src\Rnd\OScript.h" />
+    <ClInclude Include="src\Rnd\Entity.h" />
+    <ClInclude Include="src\Rnd\ObjectSettings.h" />
+    <ClInclude Include="src\Rnd\Transform.h" />
+    <ClInclude Include="src\Rnd\DeltaTime.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp">
@@ -143,24 +128,18 @@
     <ClCompile Include="src\Core\UI\UI.cpp">
       <Filter>Core\UI</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rnd\Entity.cpp">
-      <Filter>Rnd</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rnd\ORenderer.cpp">
-      <Filter>Rnd</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rnd\OScript.cpp">
-      <Filter>Rnd</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rnd\ObjectSettings.cpp">
-      <Filter>Rnd</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rnd\Time.cpp">
-      <Filter>Rnd</Filter>
-    </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Rnd\Time.cpp" />
+    <ClCompile Include="src\Rnd\ORenderer.cpp" />
+    <ClCompile Include="src\Rnd\OScript.cpp" />
+    <ClCompile Include="src\Rnd\Entity.cpp" />
+    <ClCompile Include="src\Rnd\ObjectSettings.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Shaders\shader.frag" />
+    <None Include="src\Shaders\shader.vert" />
   </ItemGroup>
 </Project>

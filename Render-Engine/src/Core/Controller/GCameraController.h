@@ -27,7 +27,7 @@ namespace Render {
 		Window* m_PWindow = nullptr;
 		GCamera* m_PGCamera = nullptr;
 
-		glm::vec3 m_Position{ 0.0f };
+		glm::vec3 m_Position{ 0.0f, -200.0f, 0.0f };
 		glm::vec3 m_Rotation{ 0.0f, 1.0f, 0.0f };
 		glm::vec3 m_PitchAxis{ 1.0f, 0.0f, 0.0f };
 

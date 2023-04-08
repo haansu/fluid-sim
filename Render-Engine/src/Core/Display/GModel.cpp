@@ -14,20 +14,43 @@
 #include <tiny_obj_loader.h>
 //
 
+// STL
+#include <unordered_map>
+#include <functional>
+//
+
+// GLM
+#include <glm/glm.hpp>
+//
+
+namespace std {
+
+	template<>
+	struct std::hash<::Vertex> {
+		size_t operator()(::Vertex const& vert) const {
+			size_t seed = 0;
+			return ((std::hash<::glm::vec3>()(vert.pos))
+				^ (std::hash<::glm::vec4>()(vert.color) << 1)) >> 1
+				^ (std::hash<::glm::vec2>()(vert.uv) << 1)
+				^ (std::hash<::glm::vec3>()(vert.normal) << 2) >> 1;
+		}
+	};
+}
+
 namespace Render {
 
-	GModel::GModel(GDevice& device, const std::string& modelPath, glm::vec4 color)
+	GModel::GModel(GDevice& device, const std::string& modelPath)
 		: m_VertexBuffer(new GBuffer()), m_IndexBuffer(new GBuffer()) {
 
 		m_Device = &device;
-		LoadModel(modelPath, color);
+		LoadModel(modelPath);
 		CreateVertexBuffers(m_Vertices);
 		CreateIndexBuffers(m_Indices);
 	}
 
 	GModel::~GModel() {};
 
-	void GModel::LoadModel(const std::string& path, glm::vec4 color) {
+	void GModel::LoadModel(const std::string& path) {
 		tinyobj::attrib_t att;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
@@ -37,33 +60,40 @@ namespace Render {
 		if (!tinyobj::LoadObj(&att, &shapes, &materials, &warn, &err, path.c_str()))
 			throw std::runtime_error(warn + err);
 
-		// TODO: Unique indices for better performance
+		m_Indices.clear();
+		m_Vertices.clear();
+		std::unordered_map <Vertex, uint32_t> uniqueVert;
 
 		for (const auto& elem : shapes) {
 			for (const auto& index : elem.mesh.indices) {
 				Vertex vert{};
 
-				vert.pos = {
-					  att.vertices[3 * index.vertex_index + 0]
-					, att.vertices[3 * index.vertex_index + 1]
-					, att.vertices[3 * index.vertex_index + 2]
-				};
+				if (index.vertex_index >= 0)
+					vert.pos = {
+						  att.vertices[3 * index.vertex_index + 0]
+						, att.vertices[3 * index.vertex_index + 1]
+						, att.vertices[3 * index.vertex_index + 2]
+					};				
+				
+				if (index.texcoord_index >= 0)
+					vert.uv = {
+						  att.texcoords[2 * index.texcoord_index + 0]
+						, 1.0f - att.texcoords[2 * index.texcoord_index + 1]
+					};
 
-				vert.uv = {
-					  att.texcoords[2 * index.texcoord_index + 0]
-					, 1.0f - att.texcoords[2 * index.texcoord_index + 1]
-				};
+				if (index.normal_index >= 0)
+					vert.normal = {
+						  att.normals[3 * index.normal_index + 0]
+						, att.normals[3 * index.normal_index + 1]
+						, att.normals[3 * index.normal_index + 2]
+					};
 
-				vert.color = color;
+				if (uniqueVert.find(vert) == uniqueVert.end()) {
+					uniqueVert[vert] = static_cast<uint32_t>(m_Vertices.size());
+					m_Vertices.push_back(vert);
+				}
 
-				vert.normal = {
-					  att.normals[3 * index.normal_index + 0]
-					, att.normals[3 * index.normal_index + 1]
-					, att.normals[3 * index.normal_index + 2]
-				};
-
-				m_Vertices.push_back(vert);
-				m_Indices.push_back((uint32_t)m_Indices.size());
+				m_Indices.push_back(uniqueVert[vert]);
 			}
 		}
 	}
@@ -127,7 +157,7 @@ namespace Render {
 		vkUnmapMemory(m_Device->GetDevice(), stagingBufferMem);
 
 		GBuffer::CreateBuffer(
-			m_Device
+			  m_Device
 			, bufferSize
 			, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT
 			, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT

@@ -3,17 +3,17 @@
 
 #include <Rnd/ORenderer.h>
 
-namespace rnd {
+NAMESPACE_START_SCOPE_RND
 
-	RENDER_API OScript::OScript() {
-		m_ORenderer = ORenderer::GetInstance();
+RENDER_API OScript::OScript() {
+	m_ORenderer = ORenderer::GetInstance();
 
-		m_ORenderer->Start([&]() { return Start(); });
-		m_ORenderer->Update([&]() { return Update(); });
+	m_ORenderer->Start([&]() { return Start(); });
+	m_ORenderer->Update([&]() { return Update(); });
 
-		m_Id = ORenderer::s_IdCount;
-	}
-
-	RENDER_API OScript::~OScript() {}
-
+	m_Id = ORenderer::s_IdCount;
 }
+
+RENDER_API OScript::~OScript() {}
+
+NAMESPACE_END_SCOPE_RND
