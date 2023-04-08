@@ -18,13 +18,13 @@ IncludeDir = {}
 LibDir = {}
 
 IncludeDir["GLFW"] = "vendor/lib/glfw/include"
-IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.216.0/Include"
+IncludeDir["Vulkan"] = "C:/VulkanSDK/1.3.243.0/Include"
 IncludeDir["stb"] = "vendor/lib/stb/include"
 IncludeDir["tol"] = "vendor/lib/tol/include"
 IncludeDir["imgui"] = "vendor/lib/imgui"
 IncludeDir["imguibackends"] = "vendor/lib/imgui/backends"
 
-LibDir["Vulkan"] = "C:/VulkanSDK/1.3.216.0/Lib"
+LibDir["Vulkan"] = "C:/VulkanSDK/1.3.243.0/Lib"
 LibDir["GLFW"] = "vendor/lib/glfw/bin/Debug-x86_64/GLFW"
 LibDir["ImGUI"] = "vendor/lib/imgui/bin/Debug-x86_64/ImGUI"
 

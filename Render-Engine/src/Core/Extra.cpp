@@ -30,7 +30,7 @@ namespace Render {
 
 	}
 
-	glm::mat4 Transform::Model() {
+	glm::mat4 Trf::Model() {
 		const float rcosx = glm::cos(rotate.x);
 		const float rsinx = glm::sin(rotate.x);
 		const float rcosy = glm::cos(rotate.y);
@@ -62,7 +62,7 @@ namespace Render {
 		};
 	}
 
-	glm::mat3 Transform::Normal() {
+	glm::mat3 Trf::Normal() {
 		const float cosx = glm::cos(rotate.x);
 		const float sinx = glm::sin(rotate.x);
 		const float cosy = glm::cos(rotate.y);

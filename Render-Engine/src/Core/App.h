@@ -5,6 +5,10 @@
 #include <Core/Graphics/Vertex.h>
 //
 
+// Front core
+#include <Rnd/ObjectSettings.h>
+//
+
 // Vulkan
 #include <vulkan/vulkan_core.h>
 //
@@ -12,6 +16,7 @@
 // STL
 #include <vector>
 #include <functional>
+#include <unordered_map>
 //
 
 namespace Render {
@@ -31,12 +36,12 @@ namespace Render {
 
 	class App final {
 	public:
-		void Run(std::function<void()> start, std::function<void()> update);
+		void Run(std::function<void()> start, std::function<void()> update, std::function<std::unordered_map<uint64_t, rnd::ObjectSettings*>()> drawList);
 
 	private:
-		void Init(std::function<void()> start);
+		void Init();
 		void InitGUI();
-		void MainLoop(std::function<void()> update);
+		void MainLoop(std::function<void()> start, std::function<void()> update, std::function<std::unordered_map<uint64_t, rnd::ObjectSettings*>()> drawList);
 		void Cleanup();
 
 		void CreateSwapChain();
@@ -177,7 +182,7 @@ namespace Render {
 		std::vector<uint32_t> m_Indices;
 
 		// Draw & Models
-		std::vector<GObject*> m_Objects;
+		std::unordered_map<uint64_t, GObject*> m_Objects;
 	};
 
 }

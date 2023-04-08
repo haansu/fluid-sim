@@ -4,7 +4,7 @@
 // Core
 #include <Core.h>
 #include <Core/Display/GCamera.h>
-#include <Core/Time.h>
+#include <Rnd/Time.h>
 #include <Window/Window.h>
 #include <Core/UI/UI.h>
 //
@@ -27,8 +27,8 @@ namespace Render {
 	void GCameraController::Update() {
 		glm::vec3 velocity{ 0.0f };
 
-		float velSpeed = 30.0f * Time::DeltaTime();
-		float rotSpeed = 0.5f * Time::DeltaTime();
+		float velSpeed = 50.0f * rnd::Time::DeltaTime();
+		float rotSpeed = 0.5f * rnd::Time::DeltaTime();
 
 		double cPosX, cPosY;
 		glfwGetCursorPos(m_PWindow->GetGLFWwindowPointer(), &cPosX, &cPosY);
@@ -55,7 +55,7 @@ namespace Render {
 		int keyStateSpace = glfwGetKey(m_PWindow->GetGLFWwindowPointer(), GLFW_KEY_SPACE);
 
 		if (keyStateLShift == GLFW_PRESS)
-			velSpeed = 10.0f * Time::DeltaTime();
+			velSpeed = 100.0f * rnd::Time::DeltaTime();
 
 		glm::ivec2 cursorDelta{ 0 };
 		if (m_CursorPos.x < m_PWindow->GetWidth()

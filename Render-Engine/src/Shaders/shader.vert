@@ -25,6 +25,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 layout(push_constant) uniform Push {
   mat4 modelMat;
   mat4 normalMat;
+  vec4 color;
 } push;
 
 void main() {
@@ -37,6 +38,6 @@ void main() {
 	
 	vec4 finalIntensity = lightIntensity * uniBuff.lightDiffuse + uniBuff.lightAmbient;
 
-	fragColor = finalIntensity * inColor;
+	fragColor = finalIntensity * push.color;
 	fragUV = inUV;
 }

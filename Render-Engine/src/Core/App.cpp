@@ -5,7 +5,7 @@
 #include "Extra.h"
 #include "Helper.h"
 #include <Core.h>
-#include <Core/Time.h>
+#include <Rnd/Time.h>
 #include <Window/Window.h>
 //
 
@@ -60,14 +60,14 @@ namespace Render {
 
 	//
 
-	void App::Run(std::function<void()> start, std::function<void()> update) {
-		Init(start);
+	void App::Run(std::function<void()> start, std::function<void()> update, std::function<std::unordered_map<uint64_t, rnd::ObjectSettings*>()> drawList) {
+		Init();
 		InitGUI();
-		MainLoop(update);
+		MainLoop(start, update, drawList);
 		Cleanup();
 	}
 
-	void App::Init(std::function<void()> start) {
+	void App::Init() {
 		Window* pWindow = new Window{ 1280, 720, "Fluid Sim" };
 		m_Device = new GDevice{ *pWindow };
 		m_Camera = new GCamera{};
@@ -92,27 +92,19 @@ namespace Render {
 		CreateDescriptorPool();
 		CreateDescriptorSets();
 		CreateSyncObjects();
-
-		// For now objects added in a hacky way
-		m_Objects.push_back(new GObject{ *m_Device, "models/room.obj", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f} });
-		m_Objects.push_back(new GObject{ *m_Device, "models/car.obj", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f} });
-		m_Objects[1]->transform.rotate = glm::vec3(glm::radians(90.0f), 0.0f, 0.0f);
-		m_Objects[0]->transform.translate.x += 2;
-
-		start();
 	}
 
 	void App::InitGUI() {
 		UI::Begin(m_Device, m_VkInstance, m_RenderPass, m_DescPool, s_MaxFramesInFlight);
 	}
 
-	void App::MainLoop(std::function<void()> update) {
+	void App::MainLoop(std::function<void()> start, std::function<void()> update, std::function<std::unordered_map<uint64_t, rnd::ObjectSettings*>()> drawList) {
 		static auto startTime = std::chrono::high_resolution_clock::now();
 		while (!m_Device->GetWindow()->ShouldClose()) {
 			auto		currentTime = std::chrono::high_resolution_clock::now();
 			float		deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 			startTime = currentTime;
-			Time::_SetDeltaTime(deltaTime);
+			rnd::Time::_SetDeltaTime(deltaTime);
 
 			UI::fps = static_cast<int>(1.0f / deltaTime);
 
@@ -121,12 +113,46 @@ namespace Render {
 
 			m_CameraController->Update();			
 
-			m_Camera->SetPerspProjection(glm::radians(70.0f), static_cast<float>(m_SwapChainExtent.width) / static_cast<float>(m_SwapChainExtent.height), 0.1f, 1000.0f);
+			m_Camera->SetPerspProjection(glm::radians(90.0f), static_cast<float>(m_SwapChainExtent.width) / static_cast<float>(m_SwapChainExtent.height), 0.1f, 10000.0f);
 
 			UI::canvasWidth = m_SwapChainExtent.width;
 			UI::canvasHeight = m_SwapChainExtent.height;
-		
+			
+			start();
+			
 			update();
+
+			std::unordered_map<uint64_t, rnd::ObjectSettings*> objSett = drawList();
+			
+			
+			std::vector<uint64_t> markIdForDeletion;
+			for (const auto& elem : m_Objects) {
+				bool found = false;
+
+				if (objSett.find(elem.first) != objSett.end())
+					found = true;
+
+				if (!found)
+					markIdForDeletion.push_back(elem.first);
+			}
+
+			for (const auto& elem : markIdForDeletion) {
+				m_Objects.erase(elem);
+			}
+			
+
+			for (const auto& elem : objSett)
+				if (!m_Objects[elem.first])
+					m_Objects[elem.first] = new GObject{ *m_Device, elem.second->path, elem.second->color };
+				else {
+					//if (m_Objects[elem.first]->transform.rotate != elem.second->transform.rotate)
+						m_Objects[elem.first]->transform.rotate = elem.second->transform.rotate;
+					//if (m_Objects[elem.first]->transform.translate != elem.second->transform.translate)
+						m_Objects[elem.first]->transform.translate = elem.second->transform.translate;
+					//if (m_Objects[elem.first]->transform.scale != elem.second->transform.scale)
+						m_Objects[elem.first]->transform.scale = elem.second->transform.scale;
+				}
+
 		}
 
 		vkDeviceWaitIdle(m_Device->GetDevice());
@@ -1099,11 +1125,12 @@ namespace Render {
 		vkCmdBindDescriptorSets(commBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descSet, 0, nullptr);
 
 		for (auto& elem : m_Objects) {
-			if (!elem)
+			if (!elem.second)
 				continue;
 
-			push.modelMatrix = elem->transform.Model();
-			push.normalMatrix = elem->transform.Normal();
+			push.modelMatrix = elem.second->transform.Model();
+			push.normalMatrix = elem.second->transform.Normal();
+			push.color = elem.second->color;
 
 			vkCmdPushConstants(
 				  commBuffer
@@ -1114,8 +1141,8 @@ namespace Render {
 				, &push
 			);
 
-			elem->m_Model->Bind(commBuffer);
-			elem->m_Model->Draw(commBuffer);
+			elem.second->GetModelPtr()->Bind(commBuffer);
+			elem.second->GetModelPtr()->Draw(commBuffer);
 		}
 	}
 }
