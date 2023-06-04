@@ -221,6 +221,7 @@ namespace Render {
 			throw std::runtime_error("Failed to create logical device!");
 
 		vkGetDeviceQueue(m_Device, ind.graphicsFamily.value(), 0, &m_GraphicsQueue);
+		vkGetDeviceQueue(m_Device, ind.graphicsFamily.value(), 0, &m_ComputeQueue);
 		vkGetDeviceQueue(m_Device, ind.presentFamily.value(), 0, &m_PresentQueue);
 	}
 
@@ -323,7 +324,7 @@ namespace Render {
 		uint16_t i = 0;
 
 		for (const auto& elem : qFamilies) {
-			if (elem.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			if ((elem.queueFlags & VK_QUEUE_GRAPHICS_BIT) && (elem.queueFlags & VK_QUEUE_COMPUTE_BIT))
 				ind.graphicsFamily = i;
 
 			VkBool32 presentSupport = false;

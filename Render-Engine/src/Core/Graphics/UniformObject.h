@@ -10,4 +10,6 @@ struct UniformBufferObject {
 	glm::vec4 lightColor;
 	glm::vec4 lightAmbient;
 	glm::vec4 lightDiffuse;
+
+	float deltaTime;
 };

@@ -15,7 +15,8 @@ public:
 	RENDER_API ~Entity();
 
 	RENDER_API void SetModel(std::string path, glm::vec4 color);
-	
+	RENDER_API void SetColor(glm::vec4 color);
+
 	RENDER_API Transform GetTransfrom();
 
 	RENDER_API void SetTransform(const rnd::Transform& transform);

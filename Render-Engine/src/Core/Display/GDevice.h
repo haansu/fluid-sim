@@ -33,9 +33,11 @@ namespace Render {
 		inline VkDevice&			GetDevice() { return m_Device; }
 		inline VkPhysicalDevice&	GetPhysicalDevice() { return m_PhysicalDevice; }
 		inline VkSurfaceKHR&		GetSurface() { return m_Surface; }
+		inline VkQueue&				GetComputeQueue() { return m_ComputeQueue; }
 		inline VkQueue&				GetGraphicsQueue() { return m_GraphicsQueue; }
 		inline VkQueue&				GetPresentQueue() { return m_PresentQueue; }
 		inline Window*				GetWindow() { return m_pWindow; }
+		inline VkInstance&			GetInstance() { return m_VkInstance; }
 
 		/// <summary>
 		/// Returns the a command buffer for single time commands
@@ -120,6 +122,7 @@ namespace Render {
 		VkSurfaceKHR m_Surface;
 		VkQueue m_GraphicsQueue;
 		VkQueue	m_PresentQueue;
+		VkQueue m_ComputeQueue;
 	};
 
 }

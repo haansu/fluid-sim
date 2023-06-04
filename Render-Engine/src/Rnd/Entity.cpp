@@ -30,6 +30,10 @@ RENDER_API void Entity::SetModel(std::string path, glm::vec4 color) {
 	m_ORenderer->m_DrawListSettings[objSettings.id] = &objSettings;
 }
 
+RENDER_API void Entity::SetColor(glm::vec4 color) {
+	objSettings.color = color;
+}
+
 RENDER_API rnd::Transform Entity::GetTransfrom() {
 	return objSettings.transform;
 }

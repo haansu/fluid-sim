@@ -75,6 +75,14 @@ namespace Render {
 		void CreateDescriptorSets();
 		void CreateSyncObjects();
 
+		void CreateComputePipeline();
+		void CreateStorageBuffers();
+
+		void CreateComputeDescriptorSetsLayout();
+		void CreateComputeDescriptorSets();
+
+		void CreateComputeCommandBuffers();
+
 		void CreateImage(
 			  uint32_t width
 			, uint32_t height
@@ -108,6 +116,9 @@ namespace Render {
 
 		void RecCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index);
 
+		void RecComputeCommandBuffer(VkCommandBuffer commandBuffer);
+
+
 		void DrawFrame();
 		void UpdateUniformBuffer(uint32_t currentFrame);
 
@@ -134,7 +145,7 @@ namespace Render {
 		GCamera* m_Camera;
 		GCameraController* m_CameraController;
 
-		VkInstance m_VkInstance;
+		//VkInstance m_VkInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
 
 		VkSwapchainKHR m_SwapChain;
@@ -153,6 +164,16 @@ namespace Render {
 		VkDescriptorPool m_DescPool;
 
 		std::vector<VkDescriptorSet> m_DescSets;
+
+		VkDescriptorSetLayout m_ComputeDescSetLayout;
+		VkPipelineLayout m_ComputePipelineLayout;
+		VkPipeline m_ComputePipeline;
+
+		std::vector<VkDescriptorSet> m_ComputeDescSets;
+		std::vector<VkCommandBuffer> m_ComputeCommandBuffers;
+
+		std::vector<VkSemaphore> m_ComputeFinishedSemaphores;
+		std::vector<VkFence> m_ComputeIFFences;
 
 		VkImage m_TextureImg;
 		VkDeviceMemory m_TextureImgMem;
@@ -178,11 +199,18 @@ namespace Render {
 		VkDeviceMemory m_VertexBufferMem;
 		VkDeviceMemory m_IndexBufferMem;
 
+		std::vector<VkBuffer> m_StorageBuffers;
+		std::vector<VkDeviceMemory> m_StorageBuffersMem;
+
 		std::vector<Vertex> m_Vertices;
 		std::vector<uint32_t> m_Indices;
 
 		// Draw & Models
 		std::unordered_map<uint64_t, GObject*> m_Objects;
+
+
+		// TEMP
+		uint32_t s_ParticleCount = 1000;
 	};
 
 }
