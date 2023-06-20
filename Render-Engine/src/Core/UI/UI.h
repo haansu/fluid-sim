@@ -33,6 +33,9 @@ namespace Render {
 		// FPS
 		static void FPS();
 
+		// Simulation
+		static void Simulation();
+
 		static uint32_t fps;
 		static float cameraPosition[3];
 		static float cameraRotation[3];
@@ -41,6 +44,19 @@ namespace Render {
 
 		static int canvasWidth;
 		static int canvasHeight;
+
+		static bool bReset;
+		static bool bGravity;
+		static bool bCollisions;
+		static float viscosity;
+		static float restDesnity;
+		static float damping;
+		static float stiffness;
+
+		static int particleCount;
+		static int xSpeed;
+		static int ySpeed;
+		static int zSpeed;
 
 	};
 

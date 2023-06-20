@@ -9,7 +9,8 @@ workspace "fluid-sim"
 
 	configurations {
 		"Debug",
-		"Release"
+		"Release",
+		"Dist"
 	}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.architecture}"
@@ -90,6 +91,11 @@ project "App"
 		buildoptions "/MD"
 		optimize "On"
 
+	filter "configurations:Dist"
+		defines "FS_DIST"
+		buildoptions "/MD"
+		optimize "Speed"
+
 --
 -- Engine
 --
@@ -140,6 +146,11 @@ project "Engine"
 		defines "FS_RELEASE"
 		buildoptions "/MD"
 		optimize "On"
+
+	filter "configurations:Dist"
+		defines "FS_DIST"
+		buildoptions "/MD"
+		optimize "Speed"
 
 --
 -- Render-Engine
@@ -217,3 +228,8 @@ project "Render-Engine"
 		defines "FS_RELEASE"
 		buildoptions "/MD"
 		optimize "On"
+	
+	filter "configurations:Dist"
+		defines "FS_DIST"
+		buildoptions "/MD"
+		optimize "Speed"

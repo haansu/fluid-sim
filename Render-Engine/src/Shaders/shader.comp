@@ -1,0 +1,24 @@
+# version 460
+
+struct Particle {
+    vec3 pos;
+    vec3 vel;
+    vec4 color;
+};
+
+layout(binding = 0) uniform ParameterUBO {
+    float deltaTime;
+} uniBuff;
+
+layout(std140, binding = 1) readonly buffer ParticleSSBOIn {
+    Particle particlesIn[];
+};
+
+layout(std140, binding = 2) buffer ParticleSSBOOut {
+    Particle particlesOut[];
+};
+
+void main() 
+{
+    
+}

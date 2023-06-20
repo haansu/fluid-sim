@@ -38,7 +38,17 @@ namespace Render {
 	int UI::canvasWidth = 0;
 	int UI::canvasHeight = 0;
 
-
+	bool UI::bReset = false;
+	bool UI::bCollisions = true;
+	bool UI::bGravity = true;
+	float UI::viscosity = 0.1f;
+	float UI::restDesnity = 5.0f;
+	float UI::damping = 0.98f;
+	float UI::stiffness = 3.0f;
+	int UI::particleCount = 1000;
+	int UI::xSpeed = 0;
+	int UI::ySpeed = 0;
+	int UI::zSpeed = 0;
 
 	// Initialize ImGUI for Vulkan
 	void UI::Begin(
@@ -87,6 +97,8 @@ namespace Render {
 		Camera();
 		FPS();
 
+		Simulation();
+
 		ImGui::Render();
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commBuffer);
 	}
@@ -103,6 +115,25 @@ namespace Render {
 	void UI::FPS() {
 		ImGui::Begin("FPS");
 		ImGui::Text("%d", fps);
+		ImGui::End();
+	}
+
+	void UI::Simulation() {
+		ImGui::Begin("Live simulation");
+		ImGui::SliderFloat("Rest density", &restDesnity, 0.5f, 20.0f);
+		ImGui::SliderFloat("Viscosity", &viscosity, 0.0f, 2.0f);
+		ImGui::SliderFloat("Damping", &damping, 0.0f, 1.0f);
+		ImGui::SliderFloat("Stiffness", &stiffness, 0.1f, 10.0f);
+		ImGui::Checkbox("Gravity", &bGravity);
+		ImGui::Checkbox("Collisions", &bCollisions);
+		ImGui::End();
+
+		ImGui::Begin("Initialize");
+		ImGui::SliderInt("Particle Count", &particleCount, 1, 2500);
+		ImGui::SliderInt("X Velocity", &xSpeed, -15, 15);
+		ImGui::SliderInt("Y Velocity", &ySpeed, -15, 15);
+		ImGui::SliderInt("Z Velocity", &zSpeed, -15, 15);
+		bReset = ImGui::Button("Reset");
 		ImGui::End();
 	}
 

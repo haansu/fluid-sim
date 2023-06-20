@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Dist|x64">
+      <Configuration>Dist</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{289DC166-945D-3D9D-5D98-861AC9178279}</ProjectGuid>
@@ -30,6 +34,12 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -37,6 +47,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -51,6 +64,13 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\Release-x86_64\Render-Engine\</OutDir>
     <IntDir>..\obj\Release-x86_64\Render-Engine\</IntDir>
+    <TargetName>Render-Engine</TargetName>
+    <TargetExt>.dll</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\bin\Dist-x86_64\Render-Engine\</OutDir>
+    <IntDir>..\obj\Dist-x86_64\Render-Engine\</IntDir>
     <TargetName>Render-Engine</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
@@ -120,8 +140,42 @@ IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\
 IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\Release-x86_64\App\models &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\models ..\bin\Release-x86_64\App\models &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>FS_RENDER_ENGINE;RENDER_API_EXPORT;FS_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\vendor\lib\stb\include;..\vendor\lib\tol\include;..\vendor\lib\glfw\include;C:\VulkanSDK\1.3.243.0\Include;..\vendor\lib\imgui;..\vendor\lib\imgui\backends;..\Engine\src;src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>GLFW.lib;vulkan-1.lib;ImGUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.243.0\Lib;..\vendor\lib\glfw\bin\Debug-x86_64\GLFW;..\vendor\lib\imgui\bin\Debug-x86_64\ImGUI;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImportLibrary>..\bin\Dist-x86_64\Render-Engine\Render-Engine.lib</ImportLibrary>
+    </Link>
+    <PreBuildEvent>
+      <Command>call $(SolutionDir)scripts/shader_compile.bat
+IF EXIST $(SolutionDir)shaders\bin\ (xcopy /Q /E /Y /I $(SolutionDir)shaders\bin $(SolutionDir)bin\Dist-x86_64\$(ProjectName)\shaders &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)shaders\bin $(SolutionDir)bin\Dist-x86_64\$(ProjectName)\shaders &gt; nul)
+IF EXIST $(SolutionDir)bin\Dist-x86_64\$(ProjectName)\shaders\ (xcopy /Q /E /Y /I $(SolutionDir)bin\Dist-x86_64\$(ProjectName)\shaders ..\bin\Dist-x86_64\App\shaders &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)bin\Dist-x86_64\$(ProjectName)\shaders ..\bin\Dist-x86_64\App\shaders &gt; nul)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>IF EXIST ..\bin\Dist-x86_64\Render-Engine\Render-Engine.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-x86_64\Render-Engine\Render-Engine.dll ..\bin\Dist-x86_64\App &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-x86_64\Render-Engine\Render-Engine.dll ..\bin\Dist-x86_64\App &gt; nul)
+IF EXIST $(SolutionDir)\textures\ (xcopy /Q /E /Y /I $(SolutionDir)\textures ..\bin\Dist-x86_64\App\textures &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\textures ..\bin\Dist-x86_64\App\textures &gt; nul)
+IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\Dist-x86_64\App\models &gt; nul) ELSE (xcopy /Q /Y /I $(SolutionDir)\models ..\bin\Dist-x86_64\App\models &gt; nul)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Graphics\Particle.h" />
     <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Core\Controller\GCameraController.h" />
@@ -135,6 +189,7 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClInclude Include="src\Core\Display\GObject.h" />
     <ClInclude Include="src\Core\Display\GRender.h" />
     <ClInclude Include="src\Core\Extra.h" />
+    <ClInclude Include="src\Core\Graphics\Particle.h" />
     <ClInclude Include="src\Core\Graphics\UniformObject.h" />
     <ClInclude Include="src\Core\Graphics\Vertex.h" />
     <ClInclude Include="src\Core\Helper.h" />
@@ -147,11 +202,11 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClInclude Include="src\Rnd\ObjectSettings.h" />
     <ClInclude Include="src\Rnd\Time.h" />
     <ClInclude Include="src\Rnd\Transform.h" />
+    <ClInclude Include="src\Rnd\UIHelper.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\Graphics\Particle.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
     <ClCompile Include="src\Core\Controller\GCameraController.cpp" />
     <ClCompile Include="src\Core\Controller\GController.cpp" />
@@ -163,6 +218,7 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClCompile Include="src\Core\Display\GObject.cpp" />
     <ClCompile Include="src\Core\Display\GRender.cpp" />
     <ClCompile Include="src\Core\Extra.cpp" />
+    <ClCompile Include="src\Core\Graphics\Particle.cpp" />
     <ClCompile Include="src\Core\Graphics\Vertex.cpp" />
     <ClCompile Include="src\Core\Helper.cpp" />
     <ClCompile Include="src\Core\UI\UI.cpp" />
@@ -171,6 +227,7 @@ IF EXIST $(SolutionDir)\models\ (xcopy /Q /E /Y /I $(SolutionDir)\models ..\bin\
     <ClCompile Include="src\Rnd\OScript.cpp" />
     <ClCompile Include="src\Rnd\ObjectSettings.cpp" />
     <ClCompile Include="src\Rnd\Time.cpp" />
+    <ClCompile Include="src\Rnd\UIHelper.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

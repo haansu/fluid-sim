@@ -28,7 +28,7 @@ protected:
 private:
 
 	ORenderer* m_ORenderer;
-	uint64_t m_Id;
+	unsigned long long m_Id;
 };
 
 NAMESPACE_END_SCOPE_RND

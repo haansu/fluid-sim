@@ -28,7 +28,7 @@ namespace Render {
 		glm::vec3 velocity{ 0.0f };
 
 		float velSpeed = 50.0f * rnd::Time::DeltaTime();
-		float rotSpeed = 0.5f * rnd::Time::DeltaTime();
+		float rotSpeed = 1.0f * rnd::Time::DeltaTime();
 
 		double cPosX, cPosY;
 		glfwGetCursorPos(m_PWindow->GetGLFWwindowPointer(), &cPosX, &cPosY);
@@ -72,10 +72,10 @@ namespace Render {
 
 		// Cursor rotation based on delta
 		if (cursorDelta.y != 0)
-			rotMat = glm::rotate(rotMat, -static_cast<float>(cursorDelta.y) / 1500.0f, pitchAxis);
+			rotMat = glm::rotate(rotMat, -static_cast<float>(cursorDelta.y) / 500.0f, pitchAxis);
 
 		if (cursorDelta.x != 0)
-			rotMat = glm::rotate(rotMat, static_cast<float>(cursorDelta.x) / 1500.0f, glm::vec3{0.0f, 0.0f, 1.0f});
+			rotMat = glm::rotate(rotMat, static_cast<float>(cursorDelta.x) / 500.0f, glm::vec3{0.0f, 0.0f, 1.0f});
 
 		// Rotation based on key input
 		if (keyStateUp == GLFW_PRESS)

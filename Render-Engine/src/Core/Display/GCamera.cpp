@@ -21,7 +21,7 @@ namespace Render {
 	void GCamera::SetPerspProjection(float yFOV, float aspectRatio, float near, float far) {
 		assert(glm::abs(aspectRatio - std::numeric_limits<float>::epsilon()) > 0.0f);
 
-		const float halfFOVTg = tan(yFOV / 20.f);
+		const float halfFOVTg = tan(yFOV / 2.0f);
 
 		m_ProjMat = glm::mat4{ 0.0f };
 		m_ProjMat[0][0] = 1.0f / (aspectRatio * halfFOVTg);

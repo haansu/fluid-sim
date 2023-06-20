@@ -61,6 +61,9 @@
     <ClInclude Include="src\Core\Extra.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Graphics\Particle.h">
+      <Filter>Core\Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Graphics\UniformObject.h">
       <Filter>Core\Graphics</Filter>
     </ClInclude>
@@ -95,13 +98,13 @@
     <ClInclude Include="src\Rnd\Transform.h">
       <Filter>Rnd</Filter>
     </ClInclude>
+    <ClInclude Include="src\Rnd\UIHelper.h">
+      <Filter>Rnd</Filter>
+    </ClInclude>
     <ClInclude Include="src\Window\Window.h">
       <Filter>Window</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Graphics\Particle.h">
-      <Filter>Core\Graphics</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp">
@@ -137,6 +140,9 @@
     <ClCompile Include="src\Core\Extra.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Graphics\Particle.cpp">
+      <Filter>Core\Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Graphics\Vertex.cpp">
       <Filter>Core\Graphics</Filter>
     </ClCompile>
@@ -161,12 +167,12 @@
     <ClCompile Include="src\Rnd\Time.cpp">
       <Filter>Rnd</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rnd\UIHelper.cpp">
+      <Filter>Rnd</Filter>
+    </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Graphics\Particle.cpp">
-      <Filter>Core\Graphics</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
